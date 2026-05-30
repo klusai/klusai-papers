@@ -1,0 +1,53 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{booktabs}
+
+\title{EuroPriv-Bench: A Unified Pan-European De-identification Benchmark\\
+       with Privacy-Utility Metrics}
+\author{KlusAI}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+% POSITIONING DISCIPLINE: claim "first to UNIFY", not "first". Cite + subsume prior art.
+Privacy-focused NLP for European languages is served by fragmented resources: the Text
+Anonymization Benchmark~\cite{pilan2022tab} provides privacy-utility metrics but is
+English- and legal-only; AI4Privacy~\cite{ai4privacy_openpii} offers cross-lingual European
+\emph{detection} data without re-identification metrics; MAPA~\cite{mapa_toolkit} spans 24 EU
+languages and both legal and clinical text but is a detection toolkit, not a leaderboard; and
+MultiGraSCCo~\cite{multigrascco2026} is multilingual but clinical-only and translation-based.
+Meanwhile the privacy-filter lineage~\cite{openai_privacy_filter_2026,openmed_privacy_filter_ml_2026}
+ships strong models with \emph{no} standardized evaluation. We introduce \textbf{EuroPriv-Bench},
+the first benchmark to \emph{unify} (a)~European cross-lingual breadth, (b)~both legal and
+clinical domains, (c)~one harmonized GDPR-aligned taxonomy, and (d)~re-identification-risk and
+privacy-utility metrics in (e)~a single reproducible, openly-licensed, leaderboard-style suite.
+We build \emph{on top of} the prior art, re-using their splits and metrics where applicable, and
+report a baseline study ranking \texttt{openai/privacy-filter}, OpenMed, \texttt{tabularisai},
+GLiNER, and Presidio.
+\end{abstract}
+
+\section{Introduction}
+% Motivate the unified gap; state the kill/pivot reasoning resolved in Phase 0.
+
+\section{The Harmonized KP Taxonomy}
+% GDPR Art. 4/9 mapping; direct vs. quasi-identifier; crosswalk to OpenAI/HIPAA/MAPA/AI4Privacy.
+
+\section{Benchmark Construction}
+% Cleanly-licensed sources only; held-out gold; synthetic train kept separate.
+
+\section{Metrics}
+% Entity F1 / recall-weighted F2; re-identification risk; privacy-utility; leakage (MIA).
+
+\section{Baseline Study}
+% Leaderboard table ingested from europriv-bench/baselines/leaderboard.json.
+
+\section{Related Work}
+% TAB, AI4Privacy, MAPA, MultiGraSCCo, MEDDOCAN, MedPriv-Bench, ASQ-PHI.
+
+\bibliographystyle{plain}
+\bibliography{../../shared/klusai}
+
+\end{document}

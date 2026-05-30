@@ -1,0 +1,17 @@
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.pdf
+
+# Ingested raw results (regenerated from europriv-bench / klusai-models)
+results/raw/
+
+# OS
+.DS_Store
