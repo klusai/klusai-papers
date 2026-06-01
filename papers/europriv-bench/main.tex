@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{pifont} % \ding{51} = check, \ding{55} = cross (coverage table)
 
 \title{EuroPriv-Bench: A Unified Pan-European De-identification Benchmark\\
        with Privacy-Utility Metrics}
@@ -12,25 +13,37 @@
 \maketitle
 
 \begin{abstract}
-% POSITIONING DISCIPLINE: claim "first to UNIFY", not "first". Cite + subsume prior art.
+% POSITIONING DISCIPLINE: claim "first UNIFIED", never bare "first". Cite + subsume prior art.
 Privacy-focused NLP for European languages is served by fragmented resources: the Text
 Anonymization Benchmark~\cite{pilan2022tab} provides privacy-utility metrics but is
 English- and legal-only; AI4Privacy~\cite{ai4privacy_openpii} offers cross-lingual European
 \emph{detection} data without re-identification metrics; MAPA~\cite{mapa_toolkit} spans 24 EU
 languages and both legal and clinical text but is a detection toolkit, not a leaderboard; and
 MultiGraSCCo~\cite{multigrascco2026} is multilingual but clinical-only and translation-based.
+Concurrent and independent work, RAT-Bench~\cite{ratbench2026}, contributes a hosted
+re-identification-risk benchmark but is built on U.S. demographics
+(English/Spanish/Chinese), with no legal text and no GDPR-aligned taxonomy.
 Meanwhile the privacy-filter lineage~\cite{openai_privacy_filter_2026,openmed_privacy_filter_ml_2026}
-ships strong models with \emph{no} standardized evaluation. We introduce \textbf{EuroPriv-Bench},
-the first benchmark to \emph{unify} (a)~European cross-lingual breadth, (b)~both legal and
-clinical domains, (c)~one harmonized GDPR-aligned taxonomy, and (d)~re-identification-risk and
-privacy-utility metrics in (e)~a single reproducible, openly-licensed, leaderboard-style suite.
-We build \emph{on top of} the prior art, re-using their splits and metrics where applicable, and
-report a baseline study ranking \texttt{openai/privacy-filter}, OpenMed, \texttt{tabularisai},
-GLiNER, and Presidio.
+and recent PII models such as GLiNER2-PII~\cite{gliner2pii2026} ship strong models with \emph{no}
+standardized European evaluation, and a 2025 survey of the field flags exactly this
+missing standardized multilingual benchmark~\cite{deusser2025survey}. We introduce
+\textbf{EuroPriv-Bench}, the first unified, openly-licensed leaderboard for European
+cross-lingual legal \emph{and} clinical de-identification with a harmonized GDPR-aligned entity
+taxonomy and a re-identification-risk metric. It unifies (a)~European cross-lingual breadth,
+(b)~both legal and clinical domains, (c)~one harmonized GDPR-aligned taxonomy, and
+(d)~re-identification-risk and privacy-utility metrics in (e)~a single reproducible,
+openly-licensed, leaderboard-style suite. We build \emph{on top of} the prior art, re-using their
+splits and metrics where applicable, and report a baseline study ranking
+\texttt{openai/privacy-filter}, OpenMed, \texttt{tabularisai}, GLiNER, and Presidio.
 \end{abstract}
 
 \section{Introduction}
 % Motivate the unified gap; state the kill/pivot reasoning resolved in Phase 0.
+EuroPriv-Bench is, to our knowledge, the first unified, openly-licensed leaderboard for European
+cross-lingual legal \emph{and} clinical de-identification with a harmonized GDPR-aligned entity
+taxonomy and a re-identification-risk metric. We deliberately claim ``first \emph{unified}'' rather
+than ``first'': each constituent capability exists in prior art, but no prior artifact combines all
+of them in one reproducible suite (Section~\ref{sec:related}).
 
 \section{The Harmonized KP Taxonomy}
 % GDPR Art. 4/9 mapping; direct vs. quasi-identifier; crosswalk to OpenAI/HIPAA/MAPA/AI4Privacy.
@@ -45,7 +58,67 @@ GLiNER, and Presidio.
 % Leaderboard table ingested from europriv-bench/baselines/leaderboard.json.
 
 \section{Related Work}
-% TAB, AI4Privacy, MAPA, MultiGraSCCo, MEDDOCAN, MedPriv-Bench, ASQ-PHI.
+\label{sec:related}
+% TAB, AI4Privacy, MAPA, MultiGraSCCo, MEDDOCAN, RAT-Bench, GLiNER2-PII/SPY,
+% MedPriv-Bench, PrivaCI-Bench, PIIBench.
+We position EuroPriv-Bench against the closest prior and concurrent artifacts along six axes:
+(a)~EU cross-lingual coverage, (b)~legal text, (c)~clinical text, (d)~a harmonized GDPR-aligned
+entity taxonomy, (e)~a re-identification-risk metric, and an open, reproducible leaderboard.
+Table~\ref{tab:related} summarizes coverage. Every prior artifact is missing at least two of these
+axes; EuroPriv-Bench is the first to fill all of them in a single suite.
+
+The closest EU-breadth, dual-domain prior art is MAPA~\cite{mapa_toolkit} (24 EU languages, legal
+\emph{and} clinical), but it is a detection toolkit with no re-identification metric and no open
+leaderboard. The legal-domain re-identification lineage is anchored by TAB~\cite{pilan2022tab},
+which pairs a privacy-utility / re-identification framing with legal text but is English-only.
+AI4Privacy~\cite{ai4privacy_openpii} contributes cross-lingual European detection data without a
+re-identification metric or a GDPR-aligned taxonomy. MultiGraSCCo~\cite{multigrascco2026} is
+multilingual but clinical-only and translation-based. MEDDOCAN~\cite{meddocan2019} is a
+clinical de-identification track but Spanish-only. EuroPriv-Bench is best understood as the
+unification of what MAPA (EU breadth + dual domain) and TAB (legal text + re-identification
+metric) each establish in isolation, under one harmonized GDPR-aligned taxonomy.
+
+RAT-Bench~\cite{ratbench2026} is concurrent and independent work: a 2026 hosted
+re-identification-risk leaderboard. It is complementary rather than overlapping --- it is built on
+U.S. demographic statistics over English, Spanish, and Chinese, contains no legal text, and uses no
+GDPR-aligned taxonomy, so it does not address the European legal/clinical de-identification setting
+EuroPriv-Bench targets. Recent PII models and corpora are similarly partial: GLiNER2-PII and the SPY
+benchmark~\cite{gliner2pii2026,spy2025} provide a strong multilingual PII model and synthetic
+evaluation but no re-identification metric or EU legal/clinical framing;
+MedPriv-Bench~\cite{medprivbench2026} is a clinical-only LLM-QA privacy-utility benchmark;
+PrivaCI-Bench~\cite{privacibench2025} evaluates contextual integrity and legal compliance rather than
+span-level de-identification; and PIIBench~\cite{piibench2026} consolidates ten public PII datasets
+for detection only. A 2025 survey of text anonymization~\cite{deusser2025survey} explicitly flags
+the absence of a standardized multilingual de-identification benchmark --- the gap EuroPriv-Bench
+is built to close.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Coverage of related and concurrent artifacts. Columns: (a)~EU cross-lingual,
+(b)~legal, (c)~clinical, (d)~harmonized GDPR taxonomy, (e)~re-identification-risk metric,
+(f)~open reproducible leaderboard. Every prior row is missing $\geq 2$ columns; only
+EuroPriv-Bench fills all six.}
+\label{tab:related}
+\begin{tabular}{lcccccc}
+\toprule
+Artifact & (a) EU x-ling & (b) legal & (c) clinical & (d) GDPR tax. & (e) re-id metric & (f) leaderboard \\
+\midrule
+TAB~\cite{pilan2022tab}                 & \ding{55} & \ding{51} & \ding{55} & \ding{55} & \ding{51} & \ding{55} \\
+AI4Privacy~\cite{ai4privacy_openpii}    & \ding{51} & \ding{55} & \ding{55} & \ding{55} & \ding{55} & \ding{55} \\
+MAPA~\cite{mapa_toolkit}                & \ding{51} & \ding{51} & \ding{51} & \ding{55} & \ding{55} & \ding{55} \\
+MultiGraSCCo~\cite{multigrascco2026}    & \ding{51} & \ding{55} & \ding{51} & \ding{55} & \ding{55} & \ding{55} \\
+MEDDOCAN~\cite{meddocan2019}            & \ding{55} & \ding{55} & \ding{51} & \ding{55} & \ding{55} & \ding{55} \\
+RAT-Bench~\cite{ratbench2026}           & \ding{55} & \ding{55} & \ding{55} & \ding{55} & \ding{51} & \ding{51} \\
+GLiNER2-PII / SPY~\cite{gliner2pii2026,spy2025} & \ding{51} & \ding{55} & \ding{55} & \ding{55} & \ding{55} & \ding{55} \\
+MedPriv-Bench~\cite{medprivbench2026}   & \ding{55} & \ding{55} & \ding{51} & \ding{55} & \ding{55} & \ding{55} \\
+PrivaCI-Bench~\cite{privacibench2025}   & \ding{55} & \ding{51} & \ding{55} & \ding{55} & \ding{55} & \ding{51} \\
+PIIBench~\cite{piibench2026}            & \ding{51} & \ding{55} & \ding{55} & \ding{55} & \ding{55} & \ding{55} \\
+\midrule
+\textbf{EuroPriv-Bench (ours)}          & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \bibliographystyle{plain}
 \bibliography{../../shared/klusai}
