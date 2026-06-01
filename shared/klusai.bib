@@ -31,8 +31,71 @@
 
 @misc{multigrascco2026,
   title  = {MultiGraSCCo: A Multilingual Anonymization Benchmark with Annotations of Personal Identifiers},
+  author = {Baroud, Ibrahim and Otto, Christoph and Czehmann, Vera and Hovhannisyan, Christine and Raithel, Lisa and M\"oller, Sebastian and Roller, Roland},
   year   = {2026},
-  note   = {arXiv:2603.08879}
+  note   = {LREC 2026; arXiv:2603.08879. Multilingual but clinical-only and translation-based.}
+}
+
+@misc{ratbench2026,
+  title  = {RAT-Bench: A Comprehensive Benchmark for Text Anonymization},
+  author = {Kr\v{c}o, Nata\v{s}a and Yao, Zexi and Meeus, Matthieu and de Montjoye, Yves-Alexandre},
+  year   = {2026},
+  note   = {arXiv:2602.12806. Concurrent, independent re-identification-risk benchmark over
+            synthetic text on U.S. demographics (English/Spanish/Chinese); no legal text and no
+            GDPR-aligned taxonomy.}
+}
+
+@misc{gliner2pii2026,
+  title  = {GLiNER2-PII: A Multilingual Model for Personally Identifiable Information Extraction},
+  author = {Zaratiana, Urchade and Lewis, Ash and Hurn-Maloney, George},
+  year   = {2026},
+  note   = {arXiv:2605.09973. 0.3B multilingual PII extractor over a 42-type taxonomy; a model,
+            not a leaderboard. Evaluated on the SPY synthetic PII benchmark.}
+}
+
+@inproceedings{spy2025,
+  title     = {SPY: Enhancing Privacy with Synthetic PII Detection Dataset},
+  author    = {Savkin, Maksim and Ionov, Timur and Konovalov, Vasily},
+  booktitle = {Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the
+               Association for Computational Linguistics: Human Language Technologies (Volume 4:
+               Student Research Workshop)},
+  pages     = {236--246},
+  year      = {2025},
+  note      = {ACL Anthology 2025.naacl-srw.23. English-only synthetic PII detection benchmark;
+               4{,}197 legal-domain and 4{,}491 clinical items.}
+}
+
+@misc{medprivbench2026,
+  title  = {MedPriv-Bench: Benchmarking the Privacy-Utility Trade-off of Large Language Models in Medical Open-End Question Answering},
+  author = {Guan, Shaowei and Zhai, Yu and Kwok, Hin Chi and Du, Jiawei and Feng, Xinyu and Li, Jing and Qin, Harry and Hui, Vivian},
+  year   = {2026},
+  note   = {arXiv:2603.14265. Clinical-only; targets LLM QA privacy-utility, not cross-lingual
+            European de-identification with a GDPR taxonomy.}
+}
+
+@inproceedings{privacibench2025,
+  title     = {PrivaCI-Bench: Evaluating Privacy with Contextual Integrity and Legal Compliance},
+  author    = {Li, Haoran and Hu, Wenbin and Jing, Huihao and Chen, Yulin and Hu, Qi and Han, Sirui and Chu, Tianshu and Hu, Peizhao and Song, Yangqiu},
+  booktitle = {Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year      = {2025},
+  note      = {arXiv:2502.17041. Contextual-integrity / legal-compliance evaluation, not span-level
+              de-identification; no harmonized GDPR entity taxonomy or re-identification-risk metric.}
+}
+
+@misc{piibench2026,
+  title  = {PIIBench: A Unified Multi-Source Benchmark Corpus for Personally Identifiable Information Detection},
+  author = {Jha, Pritesh},
+  year   = {2026},
+  note   = {arXiv:2604.15776. Consolidates ten public PII datasets for detection; no
+            re-identification-risk metric, GDPR-aligned taxonomy, or clinical/legal EU framing.}
+}
+
+@inproceedings{deusser2025survey,
+  title     = {A Survey on Current Trends and Recent Advances in Text Anonymization},
+  author    = {Deu{\ss}er, Tobias and Sparrenberg, Lorenz and Berger, Armin and Hahnb\"uck, Max and Bauckhage, Christian and Sifa, Rafet},
+  booktitle = {IEEE International Conference on Data Science and Advanced Analytics (DSAA)},
+  year      = {2025},
+  note      = {arXiv:2508.21587. Flags the absence of a standardized multilingual de-identification benchmark.}
 }
 
 @misc{openai_privacy_filter_2026,
