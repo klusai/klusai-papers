@@ -36,3 +36,13 @@ make europriv-bench      # build one paper's PDF (requires latexmk + a TeX distr
 run the pipeline by hand). The ingested JSON should be validated against `europriv_bench`'s
 versioned results schema before `\input` so paper numbers trace to a known harness +
 taxonomy version.
+
+## Reproducibility & submissions
+
+Papers and the public EuroPriv-Bench leaderboard share one reproducibility bar:
+
+- [`SUBMISSIONS.md`](SUBMISSIONS.md) — public submission protocol for adding a model to the
+  leaderboard (HF model id + adapter scheme + model card; scored by CI, never self-reported).
+- [`ARTIFACT_EVALUATION.md`](ARTIFACT_EVALUATION.md) — per-track artifact-evaluation program
+  (ARR Responsible NLP + ACL reproducibility for NLP papers; ACM Artifact Evaluation
+  Available+Functional for the PETS/PoPETs path) and the shared pass criterion.
