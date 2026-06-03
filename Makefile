@@ -1,4 +1,4 @@
-.PHONY: help results europriv-bench synthetic-drift underserved-sota privacy-utility clean
+.PHONY: help results europriv-bench synthetic-drift underserved-sota privacy-utility dissociation-protector clean
 
 # Source of truth for benchmark numbers. Override for a sibling checkout layout if needed.
 LEADERBOARD := ../europriv-bench/baselines/leaderboard.json
@@ -10,6 +10,7 @@ help:
 	@echo "  make synthetic-drift"
 	@echo "  make underserved-sota"
 	@echo "  make privacy-utility"
+	@echo "  make dissociation-protector  (KLU-110 skeleton draft)"
 
 results:
 	@mkdir -p results
@@ -37,6 +38,9 @@ underserved-sota:
 
 privacy-utility:
 	$(call build_paper,privacy-utility)
+
+dissociation-protector:
+	$(call build_paper,dissociation-protector)
 
 clean:
 	find papers -name '*.aux' -o -name '*.log' -o -name '*.out' -o -name '*.fls' -o -name '*.fdb_latexmk' | xargs rm -f
