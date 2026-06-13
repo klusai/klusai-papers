@@ -8,7 +8,7 @@
 \usepackage{pifont} % \ding{51} = check, \ding{55} = cross
 
 % =====================================================================================
-% KLU-110 — Paper 3 SKELETON DRAFT. NOT FOR SUBMISSION.
+% KLU-110 — Paper 3. Public working paper (preliminary findings, not peer-reviewed) for research.klusai.com.
 % Thesis: aggregate detection-F1 masks failures on the rare, high-stakes tokens that carry
 % re-identification. National IDs are the clearest provable case (deterministic, decode-bearing),
 % not the whole of it. The dissociation now holds on BOTH (a) synthetic structured national-ID
@@ -35,7 +35,7 @@
 %   * Re-run the prior-art rescan (KLU-15) before ANY broadened public claim.
 %   * The name-in-context channel is PRELIMINARY / in-progress (KLU-118), NOT a cited headline.
 %     The QI-combination (PURR) metric is FUTURE WORK (KLU-122).
-%   * No SOTA claims anywhere in this draft.
+%   * No SOTA claims anywhere in this paper.
 % =====================================================================================
 
 % Reusable placeholder for the SOTA gate (KLU-27). Use wherever a "best/strongest/SOTA"
@@ -47,7 +47,7 @@ claim, which predates the 3-ID / legal / Track-C expansion.]}}
 
 \title{Detection Is Not Re-identification: A Unified Dissociation\\
        and an Open Protector for European De-identification\\
-       \large (SKELETON DRAFT --- KLU-110 --- NOT FOR SUBMISSION)}
+       \large (Working Paper --- Preliminary Findings --- Not Peer-Reviewed)}
 \author{KlusAI}
 \date{2026}
 
@@ -57,7 +57,7 @@ claim, which predates the 3-ID / legal / Track-C expansion.]}}
 \begin{abstract}
 % POSITIONING DISCIPLINE: "first UNIFIED", never bare "first". re-id reserved for the national-ID channel.
 % Synthetic numbers config_status=dev (KLU-27); TAB numbers real-external-gold, citable in scope. No SOTA.
-\noindent\textbf{Draft / skeleton --- not for submission.} High aggregate detection scores are the
+\noindent\textbf{Working paper --- preliminary findings; not peer-reviewed.} High aggregate detection scores are the
 standard way de-identification systems are reported and trusted. We show that this aggregate
 \emph{masks} the failures that matter most: the rare, high-stakes tokens that actually carry
 re-identification. Using the EuroPriv-Bench leaderboard~\cite{europrivbench2026}, we present the
@@ -181,6 +181,17 @@ metric runs on the \emph{synthetic} real-skeleton tracks (\texttt{ro/pl/it-reals
 identifiers, and therefore the leak counts, are generated, not drawn from a real population
 (\texttt{config\_status=dev}, gated on KLU-27). We reuse the EuroPriv-Bench harmonized GDPR-aligned
 taxonomy~\cite{europrivbench2026} rather than re-deriving it.
+
+\paragraph{Counting basis (why $n$ differs across artifacts).}
+One subject is one distinct decode-bearing national-ID value within one document, after the KLU-49
+$(\text{doc},\text{country},\text{normalized value})$ dedup. Every leak-rate and CI we report on the
+national-ID axis is on this \emph{distinct-subject} basis: the RO track has $n{=}1123$ distinct CNP
+subjects, PL $n{=}1096$, IT $n{=}1111$. We flag this explicitly because the EuroPriv-Bench leaderboard
+file (\texttt{baselines/leaderboard.json}) also carries an occurrence-level \texttt{legal-realskeleton-v1}
+view of the same documents at $n{=}1500$ \emph{occurrences} (pre-dedup), under which the same models
+report different (occurrence-weighted) leak rates. All headline numbers in this paper are read from the
+distinct-subject \texttt{ro/pl/it-realskeleton-v1} configs ($n{=}1123/1096/1111$), \emph{not} the
+$n{=}1500$ occurrence view; we never mix the two bases within a number.
 
 \paragraph{Axis 2 --- DIRECT/QUASI identifier leak on real legal gold (TAB).}
 The axis introduced here is grounded in a \emph{real}, externally peer-reviewed,
@@ -329,9 +340,13 @@ wording (\sotagate{}).
 
 \section{The Detection $\neq$ Re-identification Dissociation}
 \label{sec:dissociation}
-% PRIMARY SYNTHETIC EVIDENCE. All numbers from the EuroPriv-Bench leaderboard (ro/pl/it-realskeleton-v1),
-% europriv_bench_version 0.2.0, taxonomy 0.2.0, config_status=dev. Source of truth:
-% europriv-bench/baselines/leaderboard.json (ingested via `make results`).
+% PRIMARY SYNTHETIC EVIDENCE. All numbers from the EuroPriv-Bench leaderboard distinct-subject configs
+% ro/pl/it-realskeleton-v1 (n=1123/1096/1111 distinct national-ID subjects, KLU-49 dedup), NOT the
+% file's occurrence-level legal-realskeleton-v1 (n=1500) view. europriv_bench_version 0.2.0, taxonomy
+% 0.2.0, config_status=dev. Source of truth: europriv-bench/baselines/leaderboard.json (ingested via
+% `make results`); RO per-subject outcomes corroborated by analysis/mcnemar_ro_realskeleton.json (n=1123).
+% Traced 2026-06-14: RO gliner f1 0.8531/leak 0.3019; gliner2 0.6423/0.2858; openmed 0.5762/0.2636;
+% spacy 0.1428/0.8905; kp-deid 0.7411/0.0. PL gliner 0.8248/0.5785, kp 0.7627/0.0. IT gliner 0.8563/0.3618, kp 0.6979/0.0.
 
 \subsection{The headline anti-correlation (RO real-skeleton)}
 On the Romanian real-skeleton track (\texttt{ro-realskeleton-v1}, $n{=}1123$ distinct CNP subjects),
@@ -362,9 +377,14 @@ no number is hardcoded.}
 \caption{Detection F1 vs.\ national-ID re-identification leak-rate across three national-ID schemes
 in three languages (real-skeleton tracks). Leak-rate $=$ fraction of distinct gold national-ID
 subjects left un-redacted. All entries \texttt{config\_status=dev}, \texttt{europriv\_bench} 0.2.0,
-taxonomy 0.2.0. Source: EuroPriv-Bench leaderboard~\cite{europrivbench2026}
-(\texttt{baselines/leaderboard.json}; ingested via \texttt{make results}). kp-deid (ours) is the only
-system at $0\%$ leak on every track.}
+taxonomy 0.2.0. Numbers are read from the distinct-subject configs
+\texttt{ro/pl/it-realskeleton-v1} ($n{=}1123/1096/1111$ distinct national-ID subjects after KLU-49
+dedup), \emph{not} the file's occurrence-level \texttt{legal-realskeleton-v1} ($n{=}1500$) view (see
+``Counting basis'', Section~\ref{subsec:two-axes}). Source: EuroPriv-Bench
+leaderboard~\cite{europrivbench2026} (\texttt{baselines/leaderboard.json}, configs
+\texttt{ro/pl/it-realskeleton-v1}; ingested via \texttt{make results}); the RO per-subject outcomes
+are corroborated by the deduped artifact \texttt{analysis/mcnemar\_ro\_realskeleton.json} ($n{=}1123$).
+kp-deid (ours) is the only system at $0\%$ leak on every track.}
 \label{tab:dissociation}
 \begin{tabular}{llcc}
 \toprule
@@ -389,11 +409,42 @@ IT (Codice Fiscale) & \textbf{kp-deid (ours)} & 0.70 & \textbf{0\%} \\
 The dissociation is not a Romanian artifact. It reproduces on Polish PESEL (GLiNER F1 $0.82$,
 leak $57.8\%$; kp-deid F1 $0.76$, leak $0\%$) and Italian Codice Fiscale (GLiNER F1 $0.86$, leak
 $36.2\%$; kp-deid F1 $0.70$, leak $0\%$); see Table~\ref{tab:dissociation}. It also holds across two
-independent Romanian template families (official correspondence; academic registry): a
-difference-of-proportions test with Newcombe (1998) CIs shows the per-family gap CI excludes zero
-for the typed content-NER detectors in both families (KLU-101 analysis artifact). This retires the
-single-template-family caveat (KLU-114).
-% TODO: ingest the per-family table from europriv-bench/analysis/family_dissociation_ro_realskeleton.md.
+independent Romanian template families (official correspondence, $n{=}190$ distinct CNP subjects;
+academic registry, $n{=}250$): a difference-of-proportions test with Newcombe (1998) CIs shows the
+per-family gap (typed-detector leak minus protector leak) CI excludes zero for the \emph{typed
+content-NER} detectors in both families (Table~\ref{tab:family}). This retires the
+single-template-family caveat (KLU-114). The qualifier ``typed content-NER'' is load-bearing: the
+rule/recognizer-based Presidio and the privacy-filter classifier do \emph{not} exclude zero in
+Family~A (their CNP behavior is unstable across the two families on this $n{=}190{+}250$ family
+basis), which is also why we scope the Presidio CNP ``tie'' below to the whole-track $n{=}1123$
+McNemar basis rather than the family split.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Per-family CNP leak gap (typed content-NER detector minus protector \texttt{kp-deid}) with
+Newcombe (1998) hybrid-score $95\%$ CIs on \texttt{ro-realskeleton-v1}. The protector leaks $0\%$ in
+both families (Family~A $0/190$, $95\%$ Wilson upper bound $0.0198$; Family~B $0/250$, upper bound
+$0.0151$). A family ``holds'' the dissociation for a detector iff the gap CI excludes $0$. Source:
+\texttt{analysis/family\_dissociation\_ro\_realskeleton.json} (KLU-101). The rule/classifier baselines
+(presidio, privacy-filter) are shown for completeness and are \emph{not} typed content-NER detectors.}
+\label{tab:family}
+\begin{tabular}{lccc}
+\toprule
+Detector & Family A gap (CI) & Family B gap (CI) & Holds (both) \\
+\midrule
+gliner          & $+0.279$ $[0.217,0.347]$ & $+1.000$ $[0.979,1.000]$ & \ding{51} \\
+gliner2         & $+0.284$ $[0.222,0.352]$ & $+0.900$ $[0.854,0.931]$ & \ding{51} \\
+openmed         & $+0.253$ $[0.193,0.319]$ & $+0.668$ $[0.606,0.723]$ & \ding{51} \\
+spacy           & $+0.921$ $[0.870,0.952]$ & $+0.892$ $[0.845,0.925]$ & \ding{51} \\
+tabularisai     & $+0.368$ $[0.300,0.439]$ & $+0.012$ $[-0.005,0.035]$ & \ding{55} \\
+\midrule
+\multicolumn{4}{l}{\emph{Non-content-NER baselines (not part of the claim):}} \\
+presidio        & $+0.000$ $[-0.020,0.020]$ & $+0.900$ $[0.854,0.931]$ & \ding{55} \\
+privacy-filter  & $+0.005$ $[-0.015,0.029]$ & $+0.984$ $[0.955,0.994]$ & \ding{55} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Statistical significance (item-paired McNemar)}
 We test per-subject national-ID protection with an item-paired McNemar test (each distinct gold
@@ -402,7 +453,12 @@ pairs). On \texttt{ro-realskeleton-v1}, kp-deid vs.\ the F1 leader (GLiNER) give
 $b{=}339$, $c{=}0$ ($p\!=\!1.79\!\times\!10^{-102}$): kp-deid protects subjects GLiNER leaks, never
 the reverse. kp-deid vs.\ privacy-filter gives $b{=}16$, $c{=}0$ ($p\!=\!3.05\!\times\!10^{-5}$).
 A genuine tie is reported honestly: kp-deid vs.\ Presidio gives $b{=}c{=}0$, $p{=}1$ (both reach
-$0\%$ CNP leak on this track). Source: \texttt{analysis/mcnemar\_ro\_realskeleton.md} (KLU-53).
+$0\%$ CNP leak \emph{on the whole-track $n{=}1123$ distinct-subject basis used for this test}). We
+scope the tie to that basis deliberately: on the smaller per-family split (Table~\ref{tab:family})
+Presidio's CNP leak is unstable ($0\%$ in Family~A, $90\%$ in Family~B), so the ``tie'' is a property
+of the deduped whole-track McNemar items, not a stable cross-family property of Presidio. kp-deid, by
+contrast, leaks $0\%$ in both families and on the whole track. Source:
+\texttt{analysis/mcnemar\_ro\_realskeleton.json} (KLU-53; $n{=}1123$).
 
 \section{The Dissociation on Real Legal Gold (TAB)}
 \label{sec:tab}
@@ -437,6 +493,10 @@ Section~\ref{subsec:cjeu-training}). \texttt{kp-cjeu-structure} is \emph{openly 
 \texttt{klusai/kp-deid-xlmr-560m-legal} (scored from the identical-weight local checkpoint
 \texttt{runs/res72-cjeu-tab-seed0}); \texttt{kp-cjeu-realprose} is scored from a local checkpoint and
 both are flagged as such in the table; the other rows are adapter-scored board entries. The
+local-checkpoint rows run through the \emph{identical} \texttt{tab\_reid\_leakage} and strict
+entity-F1 code path as the adapter-scored entries (same tokenizer, same span-matching, same gold);
+only the weight-loading differs (local checkpoint vs.\ board adapter), so the
+``Presidio leads detection / we lead protection'' dissociation is not a scoring-pipeline artifact. The
 openly-released \texttt{kp-deid-mdeberta-280m}
 protector that leads the national-ID tracks (Section~\ref{sec:protector}) is a \emph{different}
 (280M) model and ranks $7$th here (DIRECT-leak $0.674$); both protectors are now public, and we do
@@ -566,9 +626,17 @@ released} as \texttt{klusai/kp-deid-xlmr-560m-legal}. ``The protector'' is there
 leads the synthetic national-ID axis, while \texttt{klusai/kp-deid-xlmr-560m-legal} leads the real TAB
 direct-identifier axis. A reader must
 not carry the synthetic-track ``$0\%$ leak'' onto TAB. \sotagate{}
-% TODO: model card link, training-data provenance (synthetic train kept separate from held-out gold),
-% architecture details, the kp-deid v2 multilingual training note. RES-62 DONE: kp-cjeu-structure is
-% published as klusai/kp-deid-xlmr-560m-legal (HF, public).
+
+\paragraph{Availability and provenance.}
+Both protectors are publicly available on the Hugging Face Hub:
+\texttt{klusai/kp-deid-mdeberta-280m} ($280$M, mDeBERTa backbone, evaluated on the national-ID tracks)
+and \texttt{klusai/kp-deid-xlmr-560m-legal} ($560$M, XLM-R backbone; the published form of
+\texttt{kp-cjeu-structure}, identical weights to checkpoint \texttt{runs/res72-cjeu-tab-seed0}). Both
+are trained for the redaction objective on real legal \emph{structure} populated with checksum-/
+format-valid \emph{synthetic} PII; no real personal data and no TAB/ECHR source text, annotations, or
+documents enter training (RES-72 contamination guard). A documented model card with full training-data
+provenance is in preparation; a broadened multilingual \texttt{kp-deid} v2 is future work
+(Section~\ref{sec:futurework}).
 
 \section{Corroborating Evidence: A Second, Independent Mechanism (Preliminary)}
 \label{sec:corroborating}
@@ -579,7 +647,9 @@ not carry the synthetic-track ``$0\%$ leak'' onto TAB. \sotagate{}
 reconciled with the board.} Beyond the deterministic national-ID channel, an early analysis (KLU-118)
 measures a second, \emph{independent} channel: a \texttt{PERSON} full name left un-redacted on the
 post-detection residual --- a \emph{name-in-context leak}, i.e.\ \emph{residual distinctiveness}, which
-we explicitly do \textbf{not} call re-identification. On \texttt{ro-realskeleton-v1}, Presidio leaks
+we explicitly do \textbf{not} call re-identification. On \texttt{ro-realskeleton-v1} (whole-track distinct-subject basis, where Presidio's
+national-ID leak is $0\%$; cf.\ the per-family instability noted in
+Section~\ref{sec:dissociation}), Presidio leaks
 $0\%$ of national IDs but $\sim\!13.7\%$ of names; spaCy shows the inverse profile (high ID leak,
 low name leak); kp-deid leaks $0\%$ on both. A per-document $2\times2$ cross-tab indicates the two
 channels are largely independent --- different systems fail on different channels --- which is why an
@@ -589,8 +659,8 @@ aggregate detection score hides both.
 $440$ national-ID subjects and $681$ name subjects) is \emph{not yet reconciled} with the
 $n{=}1123$ used for the board-grounded national-ID numbers, and the analysis predates the KLU-27
 validation. We therefore present it as corroboration of the \emph{shape} of the dissociation, not as
-a measured headline number.
-% TODO: reconcile sample basis with n=1123; re-run post-KLU-27; ingest the reconciled cross-tab.
+a measured headline number. Reconciling this sample basis with the board's $n{=}1123$ and re-running
+it post-KLU-27 is future work (Section~\ref{sec:futurework}).
 
 \section{Related Work}
 \label{sec:related}
@@ -655,11 +725,13 @@ re-identification setting or the European legal direct-identifier setting studie
 real external gold and is \emph{not} subject to the KLU-27 gate that covers the synthetic tracks.
 However, it is bounded: a single board (TAB ECHR, English legal text), the direct-identifier axis
 only, and a single protector architecture/recipe. We make no ``best/strongest/SOTA'' claim and no
-multilingual or cross-domain generalization claim from it. \textbf{[TODO: re-run the KLU-15 prior-art
-rescan before any broadened public claim --- KLU-15 predates the 3-ID / legal / Track-C expansion and
-predates this TAB external-anchor result. Confirm ``first \emph{unified}'' still holds, surface any
-concurrent legal-de-id or re-id-risk leaderboards, and cite any new concurrent dissociation work,
-e.g.\ RAT-Bench, honestly.]}
+multilingual or cross-domain generalization claim from it. We also bound the \emph{priority} claim:
+the ``first \emph{unified}'' positioning is scoped by the prior-art scan underlying EuroPriv-Bench
+(KLU-15), which predates this paper's $3$-national-ID, legal, Track-C, and TAB external-anchor
+expansion. We re-verify that scan before broadening any public priority claim, treat ``first
+\emph{unified}'' as provisional until then, and cite concurrent re-identification-risk work
+(e.g.\ RAT-Bench~\cite{ratbench2026}) where it overlaps; RAT-Bench is complementary rather than
+overlapping (U.S.\ demographics, no legal text, no GDPR-aligned taxonomy), as detailed above.
 
 \section{Limitations}
 \label{sec:limitations}
