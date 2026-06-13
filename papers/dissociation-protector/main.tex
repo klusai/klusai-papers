@@ -26,11 +26,12 @@
 %   * The TAB direct-identifier numbers are on REAL external peer-reviewed gold
 %     (config_status=real-external-gold) and are NOT under the KLU-27 gate; they are citable WITHIN
 %     their stated scope (single board, single architecture, TAB-EN-legal). Still no SOTA wording.
-%   * STOP-SHIP HONESTY (auditor §0): the TAB #1 (kp-cjeu-structure) is an UNPUBLISHED local
-%     checkpoint (HF publish gated on RES-62); the openly-released protector (kp-deid-mdeberta-280m)
-%     is a DIFFERENT model and ranks LAST on the TAB direct-identifier axis (leak 0.674). Never elide
-%     the two. (The prompt's id "kp-deid-xlmr-560m-legal" appears in NEITHER source JSON; we use the
-%     model ids that the source artifacts actually carry.)
+%   * STOP-SHIP HONESTY (auditor §0): the TAB #1 (kp-cjeu-structure, local checkpoint
+%     runs/res72-cjeu-tab-seed0) is now PUBLISHED/public as klusai/kp-deid-xlmr-560m-legal (HF;
+%     RES-62 cleared; identical weights; source: europriv-bench/analysis/tab_reid_leaderboard.json
+%     published_as + klusai-models/docs/res104-reid-win-scorecard.md). The openly-released
+%     kp-deid-mdeberta-280m is a DIFFERENT (280M) model and ranks 7th on the TAB direct-identifier
+%     axis (leak 0.674). Both are public; never elide the two.
 %   * Re-run the prior-art rescan (KLU-15) before ANY broadened public claim.
 %   * The name-in-context channel is PRELIMINARY / in-progress (KLU-118), NOT a cited headline.
 %     The QI-combination (PURR) metric is FUTURE WORK (KLU-122).
@@ -74,15 +75,18 @@ term \emph{re-identification} for this deterministic national-ID channel.
 
 On \emph{real} external legal gold (TAB ECHR English; Pil\'an et al.\ 2022~\cite{pilan2022tab}) we
 report a complementary, \emph{citable} result on a separate axis: a CJEU-structure-trained checkpoint
-attains the lowest \emph{direct-identifier} leak rate, $0.095$ ($95\%$ CI $[0.065,0.136]$), versus
+attains the lowest \emph{direct-identifier} leak rate, $0.095$ (the $95\%$ CI $[0.065,0.136]$ is the
+Wilson interval on the $n{=}264$ DIRECT subjects, single seed; seed-robustness is reported
+separately), versus
 the next-best $0.496$ (spaCy) and $0.500$ (Presidio) --- a paired-bootstrap improvement of
 $\Delta\!=\!-0.40$ ($95\%$ CI $[-0.477,-0.322]$, $n{=}264$ paired direct-identifier subjects),
 3-seed confirmed. We frame this as \textbf{direct-identifier protection / re-identification-\emph{risk}
 reduction} on real legal gold --- a broader axis than, and reported separately from, the deterministic
 national-ID \emph{re-identification} channel above. We do \textbf{not} lead detection-F1 on TAB
 (synthetic training caps at $0.340$ vs.\ Presidio $0.589$); the dissociation is the point. This TAB
-checkpoint is a research model \textbf{not yet publicly released} (publication gated); the openly
-released \texttt{kp-deid} protector is a \emph{different} model evaluated on the national-ID tracks.
+checkpoint is \textbf{openly released} as \texttt{klusai/kp-deid-xlmr-560m-legal}; the openly
+released \texttt{kp-deid-mdeberta-280m} protector is a \emph{different} (280M) model evaluated on the
+national-ID tracks --- both models are now public, and we keep them crisply distinct.
 
 We separately report a \textbf{preliminary, in-progress} second mechanism --- a name-in-context
 residual leak --- as corroborating evidence of \emph{residual distinctiveness} (not
@@ -136,15 +140,16 @@ framed as residual distinctiveness.
         axis --- DIRECT-leak $0.095$ vs.\ runner-up $\approx\!0.50$, 3-seed robust and
         paired-bootstrap significant ($\Delta\!=\!-0.40$, $95\%$ CI $[-0.477,-0.322]$, $n{=}264$),
         zero-shot from a contamination-controlled CJEU real-\emph{structure} corpus
-        (Section~\ref{sec:tab}). This checkpoint is a \emph{local research model not yet publicly
-        released} (HF publication gated on RES-62) and is distinct from the openly-released protector
-        of contribution~4; the released protector ranks last on this TAB axis and we never conflate
+        (Section~\ref{sec:tab}). This checkpoint is \emph{openly released} as
+        \texttt{klusai/kp-deid-xlmr-560m-legal} and is distinct from the (also public) protector
+        of contribution~4; the latter ranks $7$th on this TAB axis and we never conflate
         the two.
   \item An openly-released protector (\texttt{kp-deid-mdeberta-280m}) that sits \emph{off} the
         detection-optimal frontier on the national-ID tracks: $0\%$ national-ID leak at non-maximal
         F1 (Section~\ref{sec:protector}). ``The protector'' is therefore not a single model: the
-        released \texttt{kp-deid} leads the national-ID axis, while a distinct, not-yet-released
-        \texttt{kp-cjeu-structure} checkpoint leads the TAB direct-identifier axis.
+        \texttt{kp-deid-mdeberta-280m} model leads the national-ID axis, while a distinct, also
+        openly-released protector (\texttt{klusai/kp-deid-xlmr-560m-legal}) leads the TAB
+        direct-identifier axis.
   \item A \textbf{preliminary, in-progress} second mechanism (name-in-context residual leak) reported
         as corroborating evidence only, and a QI-combination metric stated as future work
         (Section~\ref{sec:corroborating}, Section~\ref{sec:futurework}).
@@ -428,22 +433,28 @@ CI $[0.065, 0.136]$ does not overlap theirs. It is \#1 on the privacy-relevant a
 gold. Critically, \texttt{kp-cjeu-structure} reaches this from a real-legal-\emph{structure} /
 synthetic-PII training corpus (CJEU) evaluated \emph{zero-shot} on ECHR/TAB, with a verified
 contamination guard (CJEU $\neq$ ECHR; $0$ document and $0$ verbatim-sentence overlap, RES-72;
-Section~\ref{subsec:cjeu-training}). \texttt{kp-cjeu-structure} and \texttt{kp-cjeu-realprose} are
-scored from \emph{local checkpoints} (HF publication gated on RES-62) and are flagged as such in the
-table; the other rows are adapter-scored board entries. The openly-released \texttt{kp-deid}
+Section~\ref{subsec:cjeu-training}). \texttt{kp-cjeu-structure} is \emph{openly released} as
+\texttt{klusai/kp-deid-xlmr-560m-legal} (scored from the identical-weight local checkpoint
+\texttt{runs/res72-cjeu-tab-seed0}); \texttt{kp-cjeu-realprose} is scored from a local checkpoint and
+both are flagged as such in the table; the other rows are adapter-scored board entries. The
+openly-released \texttt{kp-deid-mdeberta-280m}
 protector that leads the national-ID tracks (Section~\ref{sec:protector}) is a \emph{different}
-model and ranks $7$th here (DIRECT-leak $0.674$); we do not conflate the two.
+(280M) model and ranks $7$th here (DIRECT-leak $0.674$); both protectors are now public, and we do
+not conflate the two.
 
 \begin{table}[t]
 \centering
 \small
 \caption{Re-identification-risk board on \textbf{real legal gold} (TAB ECHR, English;
 \texttt{tab-echr-legal-en-v1}), ranked by per-subject DIRECT-identifier leak-rate (ascending; lower
-$=$ less re-identification risk) on the post-detection residual. $n{=}264$ distinct DIRECT subjects.
+$=$ less re-identification risk) on the post-detection residual. $n{=}264$ distinct DIRECT subjects;
+the reported $95\%$ CIs are Wilson intervals on these $n{=}264$ subjects (single seed; seed-robustness
+in Section~\ref{sec:tab-significance}).
 Detection F1 is strict entity-F1 on the same docs. ``DIRECT-leak'' is the privacy axis;
 ``QUASI-leak'' is the broader quasi-identifier residual (residual distinctiveness, not direct
-re-identification). $^{\dagger}$Scored from a local checkpoint (HF publication gated on RES-62), not
-an adapter-scored board entry. All numbers from
+re-identification). $^{\dagger}$Scored from a local checkpoint, not
+an adapter-scored board entry; the \#1 row's checkpoint is \emph{openly released} as
+\texttt{klusai/kp-deid-xlmr-560m-legal} (identical weights). All numbers from
 \texttt{europriv-bench/analysis/tab\_reid\_leaderboard.json}; the \#1 line is corroborated by
 \texttt{klusai-models/docs/res104-reid-win-scorecard.md}. \texttt{config\_status=real-external-gold}
 (citable within scope; not under KLU-27). No SOTA / best-protector wording. \sotagate{}}
@@ -524,9 +535,10 @@ metric (competitors publish only detection-F1), but it is grounded in TAB's own 
 annotations, not a self-serving construct; the claim is ``\texttt{kp-cjeu-structure} leads on
 direct-identifier protection (re-identification \emph{risk}),'' not ``beats competitors on
 detection-F1.'' The training corpus is real legal \emph{structure} with checksum-/format-valid
-\emph{synthetic} PII (not real PII). The TAB-leading checkpoint \texttt{kp-cjeu-structure} is a
-research model whose public release is gated on RES-62; the openly-released \texttt{kp-deid} protector
-of Section~\ref{sec:protector} is a \emph{different} model and ranks last on this TAB axis. We make no
+\emph{synthetic} PII (not real PII). The TAB-leading checkpoint \texttt{kp-cjeu-structure} is
+\emph{openly released} as \texttt{klusai/kp-deid-xlmr-560m-legal}; the openly-released
+\texttt{kp-deid-mdeberta-280m} protector
+of Section~\ref{sec:protector} is a \emph{different} model and ranks $7$th on this TAB axis. We make no
 ``best/strongest/SOTA'' claim. \sotagate{} Breadth (other languages and domains) is the RES-72
 multilingual follow-up.
 
@@ -536,7 +548,8 @@ multilingual follow-up.
 % real-skeleton at non-maximal but competitive F1. Openly released. Reproducible via the leaderboard
 % submission protocol (SUBMISSIONS.md). NO "best protector" / SOTA wording here — gated.
 % NOTE: "the protector" is NOT a single model. The released kp-deid-mdeberta-280m leads the national-ID
-% axis; a DISTINCT, not-yet-released kp-cjeu-structure leads the TAB direct-identifier axis (sec:tab).
+% axis; a DISTINCT, also-public kp-cjeu-structure (klusai/kp-deid-xlmr-560m-legal) leads the TAB
+% direct-identifier axis (sec:tab).
 We release \texttt{kp-deid-mdeberta-280m}, a $280$M-parameter protector trained for the redaction
 objective rather than for span detection. It attains $0\%$ national-ID leak on all three
 real-skeleton tracks (RO/PL/IT) at competitive but non-maximal detection F1 (Table~\ref{tab:dissociation}),
@@ -547,14 +560,15 @@ This $0\%$ figure is specific to the \emph{synthetic} national-ID channel. On th
 ECHR gold (Section~\ref{sec:tab}), the same released \texttt{kp-deid-mdeberta-280m} is \emph{not} the
 model that escapes the leak axis: it ranks $7$th of $8$ on DIRECT-identifier leak ($0.674$). The
 model that leads the real-gold direct-identifier axis is the structure-trained
-\texttt{kp-cjeu-structure} ($9.5\%$ leak), a \emph{distinct research checkpoint} whose HF publication
-is gated on RES-62. ``The protector'' is therefore better read as a \emph{family} of redaction-trained
-models: the openly-released \texttt{kp-deid} leads the synthetic national-ID axis, while the
-not-yet-released \texttt{kp-cjeu-structure} leads the real TAB direct-identifier axis. A reader must
+\texttt{kp-cjeu-structure} ($9.5\%$ leak), a \emph{distinct} checkpoint that is itself \emph{openly
+released} as \texttt{klusai/kp-deid-xlmr-560m-legal}. ``The protector'' is therefore better read as a
+\emph{family} of redaction-trained models, both now public: the \texttt{kp-deid-mdeberta-280m} model
+leads the synthetic national-ID axis, while \texttt{klusai/kp-deid-xlmr-560m-legal} leads the real TAB
+direct-identifier axis. A reader must
 not carry the synthetic-track ``$0\%$ leak'' onto TAB. \sotagate{}
 % TODO: model card link, training-data provenance (synthetic train kept separate from held-out gold),
-% architecture details, the kp-deid v2 multilingual training note, and the RES-62 release status of
-% kp-cjeu-structure once that artifact lands.
+% architecture details, the kp-deid v2 multilingual training note. RES-62 DONE: kp-cjeu-structure is
+% published as klusai/kp-deid-xlmr-560m-legal (HF, public).
 
 \section{Corroborating Evidence: A Second, Independent Mechanism (Preliminary)}
 \label{sec:corroborating}
@@ -628,8 +642,8 @@ $0.589$ detection-F1, underscoring that synthesis closes the protection gap, not
 gap (source scorecards: \texttt{res104-reid-win}, \texttt{res72-cjeu-tab-transfer},
 \texttt{res104-xlmr560m-stageb}, \texttt{res102-stageb-transfer} in \texttt{klusai-models/docs/}). The
 openly-released protector evaluated on the national-ID tracks is the \emph{distinct}
-\texttt{kp-deid-mdeberta-280m}; \texttt{kp-cjeu-structure} is a local research checkpoint whose public
-release is gated on RES-62 and is not yet openly available.
+\texttt{kp-deid-mdeberta-280m}; \texttt{kp-cjeu-structure} is itself \emph{openly released} as
+\texttt{klusai/kp-deid-xlmr-560m-legal} (HF, public). Both protectors are now publicly available.
 
 \textbf{Concurrent re-identification-risk work.} The closest concurrent and independent work is
 RAT-Bench~\cite{ratbench2026}, a hosted re-identification-risk leaderboard; it is complementary
@@ -670,11 +684,12 @@ e.g.\ RAT-Bench, honestly.]}
         non-deterministic notion than the decode-bearing national-ID re-identification used on the
         synthetic tracks. We report it as re-identification-\emph{risk} reduction, not as a measured
         re-identification rate.
-  \item \textbf{The TAB-leading checkpoint is not yet publicly released.} \texttt{kp-cjeu-structure}
-        (the \#1 on direct-identifier leak) is a research checkpoint; public release is gated
-        (RES-62). The openly released protector evaluated on the national-ID tracks
-        (\texttt{kp-deid-mdeberta-280m}) is a different model and ranks last on the TAB
-        direct-identifier axis (leak $0.674$). We do not conflate the two.
+  \item \textbf{Two distinct, both-public protectors.} \texttt{kp-cjeu-structure}
+        (the \#1 on direct-identifier leak) is \emph{openly released} as
+        \texttt{klusai/kp-deid-xlmr-560m-legal}. The openly released protector evaluated on the
+        national-ID tracks (\texttt{kp-deid-mdeberta-280m}) is a different (280M) model and ranks
+        $7$th on the TAB direct-identifier axis (leak $0.674$). Both are public; we do not conflate
+        the two.
   \item \textbf{Single seed for the reported point, 3-seed confirmed.} The published TAB number uses
         seed~0; robustness is confirmed across seeds \{0,1,2\} (direct-leak $\{0.0947,0.0985,0.0985\}$,
         detection-F1 $\{0.340,0.309,0.317\}$). The \texttt{tab\_reid\_leakage} metric is ours
@@ -691,7 +706,8 @@ e.g.\ RAT-Bench, honestly.]}
 \section{Future Work}
 \label{sec:futurework}
 % QI-combination (PURR) metric = KLU-122. Reconcile name channel. kp-deid v2 multilingual. KLU-27.
-% RES-72 multilingual/cross-domain TAB-style breadth. RES-62 release of kp-cjeu-structure.
+% RES-72 multilingual/cross-domain TAB-style breadth. RES-62 release of kp-cjeu-structure DONE
+% (published klusai/kp-deid-xlmr-560m-legal); remaining = model card + provenance.
 \begin{itemize}
   \item \textbf{QI-combination re-identification (PURR) metric (KLU-122).} Tag binned
         quasi-identifier tuples in gold (DOB/age band, sex, locality/NUTS, nationality, profession,
@@ -701,9 +717,9 @@ e.g.\ RAT-Bench, honestly.]}
   \item \textbf{Multilingual / cross-domain breadth on real gold (RES-72).} Extend the TAB-style
         external-gold evaluation beyond English ECHR legal text to additional languages and domains
         so the direct-identifier-protection result is no longer single-board / single-architecture.
-  \item \textbf{Public release of \texttt{kp-cjeu-structure} (RES-62).} Clear the HF publication gate
-        so the TAB-leading checkpoint becomes an openly-released artifact rather than a local
-        research checkpoint.
+  \item \textbf{Public release of \texttt{kp-cjeu-structure} (RES-62) --- done.} The TAB-leading
+        checkpoint is now openly released as \texttt{klusai/kp-deid-xlmr-560m-legal} (HF, public);
+        remaining follow-up is the model card and documented provenance.
   \item \textbf{Reconcile and validate the name-in-context channel} against $n{=}1123$ post-KLU-27.
   \item \textbf{kp-deid v2 multilingual protector} and broadened track coverage.
   \item \textbf{Native-speaker + IAA validation (KLU-27)} to clear the \texttt{dev} tracks and unlock
