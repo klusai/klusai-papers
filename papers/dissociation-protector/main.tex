@@ -3,6 +3,7 @@
 \usepackage{hyperref}
 \usepackage{booktabs}
 \usepackage{amssymb} % \nRightarrow
+\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{pifont} % \ding{51} = check, \ding{55} = cross
 
@@ -10,23 +11,34 @@
 % KLU-110 — Paper 3 SKELETON DRAFT. NOT FOR SUBMISSION.
 % Thesis: aggregate detection-F1 masks failures on the rare, high-stakes tokens that carry
 % re-identification. National IDs are the clearest provable case (deterministic, decode-bearing),
-% not the whole of it.
+% not the whole of it. The dissociation now holds on BOTH (a) synthetic structured national-ID
+% gold AND (b) real external legal gold (TAB ECHR), where a structure-trained protector leads the
+% re-identification-RISK (direct-identifier-leak) axis.
 %
 % HARD CLAIM-DISCIPLINE GUARDS (do not relax without sign-off):
 %   * Say "first UNIFIED", NEVER bare "first".
 %   * "re-identification" is reserved for the DETERMINISTIC national-ID channel only.
 %     The name/QI channels are "residual distinctiveness" / "name-in-context leak", NEVER re-id.
-%   * Every number is config_status=dev: a FINDING, not yet validated/citable. SOTA / "best
-%     protector" claims are GATED on KLU-27 (native-speaker + IAA) — see \sotagate.
+%     The TAB DIRECT channel is "direct-identifier leak / protection" and bounds re-identification
+%     RISK; it is NOT relabelled "re-identification" as a measured rate.
+%   * Synthetic real-skeleton numbers are config_status=dev: a FINDING, not yet validated/citable;
+%     SOTA / "best protector" claims on them are GATED on KLU-27 (native-speaker + IAA) — \sotagate.
+%   * The TAB direct-identifier numbers are on REAL external peer-reviewed gold
+%     (config_status=real-external-gold) and are NOT under the KLU-27 gate; they are citable WITHIN
+%     their stated scope (single board, single architecture, TAB-EN-legal). Still no SOTA wording.
+%   * STOP-SHIP HONESTY (auditor §0): the TAB #1 (kp-cjeu-structure) is an UNPUBLISHED local
+%     checkpoint (HF publish gated on RES-62); the openly-released protector (kp-deid-mdeberta-280m)
+%     is a DIFFERENT model and ranks LAST on the TAB direct-identifier axis (leak 0.674). Never elide
+%     the two. (The prompt's id "kp-deid-xlmr-560m-legal" appears in NEITHER source JSON; we use the
+%     model ids that the source artifacts actually carry.)
 %   * Re-run the prior-art rescan (KLU-15) before ANY broadened public claim.
-%   * The name-in-context channel is PRELIMINARY / in-progress (KLU-118), NOT a cited headline:
-%     its sample basis (split:test, 440/681 subjects) is not reconciled with the board's n=1123,
-%     and it predates KLU-27. The QI-combination (PURR) metric is FUTURE WORK (KLU-122).
+%   * The name-in-context channel is PRELIMINARY / in-progress (KLU-118), NOT a cited headline.
+%     The QI-combination (PURR) metric is FUTURE WORK (KLU-122).
 %   * No SOTA claims anywhere in this draft.
 % =====================================================================================
 
 % Reusable placeholder for the SOTA gate (KLU-27). Use wherever a "best/strongest/SOTA"
-% statement would otherwise be tempting.
+% statement would otherwise be tempting on the SYNTHETIC tracks.
 \newcommand{\sotagate}{\textbf{[SOTA-CLAIM GATED on KLU-27: native-speaker + inter-annotator
 agreement sign-off on \texttt{ro-realskeleton} must clear the \texttt{dev} tracks before any
 ``best/strongest/SOTA'' wording. Re-run the KLU-15 prior-art rescan before broadening the public
@@ -43,7 +55,7 @@ claim, which predates the 3-ID / legal / Track-C expansion.]}}
 
 \begin{abstract}
 % POSITIONING DISCIPLINE: "first UNIFIED", never bare "first". re-id reserved for the national-ID channel.
-% All numbers config_status=dev, gated on KLU-27. No SOTA claims.
+% Synthetic numbers config_status=dev (KLU-27); TAB numbers real-external-gold, citable in scope. No SOTA.
 \noindent\textbf{Draft / skeleton --- not for submission.} High aggregate detection scores are the
 standard way de-identification systems are reported and trusted. We show that this aggregate
 \emph{masks} the failures that matter most: the rare, high-stakes tokens that actually carry
@@ -51,18 +63,34 @@ re-identification. Using the EuroPriv-Bench leaderboard~\cite{europrivbench2026}
 first \emph{unified} demonstration that detection entity-F1 and re-identification protection are
 \emph{dissociated} --- a high-F1 detector can still leak the decode-bearing national identifiers
 (Romanian CNP, Polish PESEL, Italian Codice Fiscale) through which a subject is provably
-re-identified. On the Romanian real-skeleton track, a strong general PII detector reaches entity-F1
-$0.85$ yet leaks $30.2\%$ of distinct CNP subjects; a span-only spaCy baseline at F1 $0.14$ leaks
-$89\%$; while an openly-released protector trained for the redaction objective leaks $0\%$ at F1
-$0.74$. The dissociation holds across three national-ID schemes in three languages (RO/PL/IT) and
-across two Romanian template families, and is statistically significant under an item-paired
-McNemar test (e.g.\ $p\!=\!1.79\!\times\!10^{-102}$ vs.\ the F1 leader). We reserve the term
-\emph{re-identification} for this deterministic national-ID channel. We separately report a
-\textbf{preliminary, in-progress} second mechanism --- a name-in-context residual leak --- as
-corroborating evidence of \emph{residual distinctiveness} (not re-identification), and frame the
-quasi-identifier-combination metric as future work. We release the protector (kp-deid) and the
-analysis harness. \sotagate{} All results are \texttt{config\_status=dev}: a finding, not yet a
-validated or citable claim.
+re-identified --- and we show the same dissociation survives on \emph{externally annotated, real
+legal gold} (TAB ECHR). On the Romanian real-skeleton track, a strong general PII detector reaches
+entity-F1 $0.85$ yet leaks $30.2\%$ of distinct CNP subjects; a span-only spaCy baseline at F1
+$0.14$ leaks $89\%$; while an openly-released protector trained for the redaction objective leaks
+$0\%$ at F1 $0.74$. The dissociation holds across three national-ID schemes in three languages
+(RO/PL/IT) and across two Romanian template families, and is statistically significant under an
+item-paired McNemar test (e.g.\ $p\!=\!1.79\!\times\!10^{-102}$ vs.\ the F1 leader). We reserve the
+term \emph{re-identification} for this deterministic national-ID channel.
+
+On \emph{real} external legal gold (TAB ECHR English; Pil\'an et al.\ 2022~\cite{pilan2022tab}) we
+report a complementary, \emph{citable} result on a separate axis: a CJEU-structure-trained checkpoint
+attains the lowest \emph{direct-identifier} leak rate, $0.095$ ($95\%$ CI $[0.065,0.136]$), versus
+the next-best $0.496$ (spaCy) and $0.500$ (Presidio) --- a paired-bootstrap improvement of
+$\Delta\!=\!-0.40$ ($95\%$ CI $[-0.477,-0.322]$, $n{=}264$ paired direct-identifier subjects),
+3-seed confirmed. We frame this as \textbf{direct-identifier protection / re-identification-\emph{risk}
+reduction} on real legal gold --- a broader axis than, and reported separately from, the deterministic
+national-ID \emph{re-identification} channel above. We do \textbf{not} lead detection-F1 on TAB
+(synthetic training caps at $0.340$ vs.\ Presidio $0.589$); the dissociation is the point. This TAB
+checkpoint is a research model \textbf{not yet publicly released} (publication gated); the openly
+released \texttt{kp-deid} protector is a \emph{different} model evaluated on the national-ID tracks.
+
+We separately report a \textbf{preliminary, in-progress} second mechanism --- a name-in-context
+residual leak --- as corroborating evidence of \emph{residual distinctiveness} (not
+re-identification), and frame the quasi-identifier-combination metric as future work. We release the
+\texttt{kp-deid} protector and the analysis harness. \sotagate{} The synthetic real-skeleton results
+are \texttt{config\_status=dev} (a finding, gated on KLU-27); the TAB direct-identifier results are on
+real external gold and are citable within their stated scope (single board, single architecture,
+TAB-EN-legal).
 \end{abstract}
 
 \section{Introduction}
@@ -81,14 +109,18 @@ Because such identifiers are rare relative to the token mass, a model can post a
 while still leaking them at a high rate.
 
 This is, to our knowledge, the first \emph{unified} demonstration --- across three national-ID
-schemes, three languages, and two template families, on one reproducible leaderboard --- that
-detection accuracy and re-identification protection are \emph{dissociated} (we claim ``first
-\emph{unified}'', not ``first'': the individual ingredients exist in prior art, but no prior artifact
-combines them; Section~\ref{sec:related}, and re-verify via the KLU-15 rescan before any public
-claim). We make the dissociation visual (a Pareto frontier, Figure~\ref{fig:pareto}), statistically
-significant (item-paired McNemar), and actionable (an openly-released protector that escapes the
-leak axis). \emph{Re-identification} is used \textbf{only} for the deterministic national-ID channel;
-all other channels are framed as residual distinctiveness.
+schemes, three languages, and two template families on one reproducible leaderboard, \emph{and on
+externally annotated real legal gold (TAB ECHR)} --- that detection accuracy and re-identification
+protection are \emph{dissociated} (we claim ``first \emph{unified}'', not ``first'': the individual
+ingredients exist in prior art, but no prior artifact combines them; Section~\ref{sec:related}, and
+re-verify via the KLU-15 rescan before any public claim). We make the dissociation visual (a Pareto
+frontier, Figure~\ref{fig:pareto}), statistically significant (item-paired McNemar on the synthetic
+tracks; a paired bootstrap on the real TAB gold), and actionable (an openly-released protector that
+escapes the leak axis on the national-ID tracks, and a structure-trained protector that leads the
+direct-identifier-leak axis on real legal gold). \emph{Re-identification} is used \textbf{only} for
+the deterministic national-ID channel; the TAB DIRECT axis is reported as
+\emph{direct-identifier protection} that bounds re-identification \emph{risk}; all other channels are
+framed as residual distinctiveness.
 
 \paragraph{Contributions.}
 \begin{enumerate}
@@ -98,8 +130,21 @@ all other channels are framed as residual distinctiveness.
   \item An item-paired significance test (McNemar) on per-subject national-ID protection, and a
         Pareto-frontier visualization of F1 vs.\ leak (Section~\ref{sec:dissociation},
         Figure~\ref{fig:pareto}).
-  \item An openly-released protector (kp-deid) that sits \emph{off} the detection-optimal frontier:
-        $0\%$ national-ID leak at non-maximal F1 (Section~\ref{sec:protector}).
+  \item A \emph{real-gold confirmation on TAB ECHR}: the same dissociation holds on externally
+        annotated legal gold, and a CJEU-structure-trained checkpoint
+        (\texttt{kp-cjeu-structure}) leads the direct-identifier-leak (re-identification-\emph{risk})
+        axis --- DIRECT-leak $0.095$ vs.\ runner-up $\approx\!0.50$, 3-seed robust and
+        paired-bootstrap significant ($\Delta\!=\!-0.40$, $95\%$ CI $[-0.477,-0.322]$, $n{=}264$),
+        zero-shot from a contamination-controlled CJEU real-\emph{structure} corpus
+        (Section~\ref{sec:tab}). This checkpoint is a \emph{local research model not yet publicly
+        released} (HF publication gated on RES-62) and is distinct from the openly-released protector
+        of contribution~4; the released protector ranks last on this TAB axis and we never conflate
+        the two.
+  \item An openly-released protector (\texttt{kp-deid-mdeberta-280m}) that sits \emph{off} the
+        detection-optimal frontier on the national-ID tracks: $0\%$ national-ID leak at non-maximal
+        F1 (Section~\ref{sec:protector}). ``The protector'' is therefore not a single model: the
+        released \texttt{kp-deid} leads the national-ID axis, while a distinct, not-yet-released
+        \texttt{kp-cjeu-structure} checkpoint leads the TAB direct-identifier axis.
   \item A \textbf{preliminary, in-progress} second mechanism (name-in-context residual leak) reported
         as corroborating evidence only, and a QI-combination metric stated as future work
         (Section~\ref{sec:corroborating}, Section~\ref{sec:futurework}).
@@ -107,20 +152,179 @@ all other channels are framed as residual distinctiveness.
 
 \section{Background and Threat Model}
 \label{sec:threat}
-% TODO: define decode-bearing national IDs (CNP/PESEL/Codice Fiscale), the per-subject
-% (doc, country, normalized value) re-identification unit, and why a single leak re-identifies.
-% Distinguish: (i) deterministic re-identification via a national ID; (ii) residual distinctiveness
-% via names/QIs (NOT re-identification). State the GDPR Art. 4/9 framing (reuse the EuroPriv-Bench
-% harmonized KP taxonomy~\cite{europrivbench2026}).
-\textbf{[TODO]} Formalize the per-subject \emph{re-identification unit} $(\text{doc},
-\text{country}, \text{normalized value})$ and the decode-bearing property of national IDs. Define
-the \emph{leak rate} (fraction of distinct gold national-ID subjects left un-redacted on the
-post-detection residual) and contrast it with detection F1. Reuse the EuroPriv-Bench harmonized
-GDPR-aligned taxonomy~\cite{europrivbench2026} rather than re-deriving it.
+% Two leak axes, two evidentiary bases. Axis 1 = deterministic national-ID re-identification on
+% SYNTHETIC real-skeleton gold (config_status=dev, KLU-27 gate). Axis 2 = DIRECT/QUASI identifier
+% leak on REAL TAB/ECHR external gold (config_status=real-external-gold, NOT under KLU-27). The same
+% per-subject, post-detection-residual, leak-iff-any-occurrence machinery spans both, but the TAB
+% axis is deliberately NOT relabelled re-identification.
+
+\subsection{Two leak axes, two evidentiary bases}
+\label{subsec:two-axes}
+We measure identifier disclosure on the post-detection \emph{residual} (what a
+de-identification model would leave un-redacted), never on raw text, along two distinct
+axes that must not be conflated.
+
+\paragraph{Axis 1 --- deterministic national-ID re-identification (synthetic gold).}
+This is the channel for which we reserve the term \emph{re-identification}. A subject is one
+distinct, checksum-valid national-ID value within one document, keyed by the tuple
+$(\text{doc},\ \text{country},\ \text{normalized value})$ and deduplicated per KLU-49 (a CNP repeated
+across the CNP and CASS fields is one subject). The subject is \emph{protected} iff \textbf{every}
+occurrence is redacted and \emph{leaks} iff \textbf{any} occurrence survives; the leak-rate is the
+fraction of distinct decode-bearing subjects left un-redacted, with a $95\%$ Wilson interval. A miss
+is decode-bearing because the value deterministically discloses date-of-birth, sex, and county. This
+metric runs on the \emph{synthetic} real-skeleton tracks (\texttt{ro/pl/it-realskeleton-v1}); the
+identifiers, and therefore the leak counts, are generated, not drawn from a real population
+(\texttt{config\_status=dev}, gated on KLU-27). We reuse the EuroPriv-Bench harmonized GDPR-aligned
+taxonomy~\cite{europrivbench2026} rather than re-deriving it.
+
+\paragraph{Axis 2 --- DIRECT/QUASI identifier leak on real legal gold (TAB).}
+The axis introduced here is grounded in a \emph{real}, externally peer-reviewed,
+human-annotated corpus: the Text Anonymization Benchmark
+(TAB)~\cite{pilan2022tab}, $127$ European Court of Human Rights judgments remapped onto
+the EuroPriv-Bench KP taxonomy (\texttt{tab-echr-legal-en-v1},
+\texttt{config\_status=real-external-gold}). Because the annotations are externally
+peer-reviewed human gold, this track does \textbf{not} depend on the program's own
+native-speaker/IAA gate (KLU-27), which validates only \emph{our} synthetic skeletons.
+We deliberately keep the label distinct from Axis~1: a leaked DIRECT/QUASI identifier is
+a \emph{residual identifier disclosure}, not a deterministic decode, so we do not call it
+re-identification. A lower direct-identifier leak rate means lower re-identification \emph{risk}.
+
+\subsection{The TAB DIRECT/QUASI identifier-leak metric}
+\label{subsec:tab-metric}
+Every TAB gold span carries two annotations we exploit: an \emph{identifier type}
+$\tau \in \{\textsc{direct}, \textsc{quasi}\}$ and a coreference \emph{entity id}.
+\textsc{direct} spans are directly re-identifying on their own (e.g.\ a party name, a
+case number); \textsc{quasi} spans re-identify only in combination (e.g.\ a date, an
+address, an organisation).
+
+\paragraph{Subject and leak unit.}
+We define a \emph{subject} as one $(\text{doc},\ \text{entity\_id},\ \tau)$ triple. A
+subject is composed of all gold mentions sharing that entity id within the document and
+the same identifier type. Let $\mathrm{toks}(d)$ be the whitespace tokens of document
+$d$ and let a model's per-token prediction be $\hat{y} \in \{\text{O}\} \cup
+\text{(tagged)}$. A single occurrence (span) is \emph{detected} iff the model marks
+\emph{any} of the whitespace tokens it overlaps as non-\texttt{O}:
+\[
+  \mathrm{det}(\text{span}) \;=\; \bigvee_{i\,:\, \mathrm{tok}_i \cap \text{span}\neq\varnothing}
+  \big[\,\hat{y}_i \neq \text{O}\,\big].
+\]
+A \textbf{subject} is detected iff \emph{every} one of its occurrences is detected, and it
+\emph{leaks} iff \emph{any} occurrence survives un-redacted:
+\[
+  \mathrm{det}(\text{subject}) \;=\; \bigwedge_{\text{span}\,\in\,\text{subject}}
+  \mathrm{det}(\text{span}),
+  \qquad
+  \mathrm{leak}(\text{subject}) \;=\; \neg\,\mathrm{det}(\text{subject}).
+\]
+This is the same conjunctive ``leak iff any occurrence survives'' semantics used by the
+national-ID axis, which makes the per-subject outcome flags directly comparable across the
+two axes even though the underlying gold differs.
+
+\paragraph{Per-group residual leak rate with Wilson CIs.}
+Let $G \in \{\text{all},\ \textsc{direct},\ \textsc{quasi}\}$ partition the subjects.
+For each group let $n_G$ be the number of distinct subjects and $\ell_G$ the number that
+leak. The reported leak rate is $\hat{p}_G = \ell_G / n_G$ (lower is better), with a
+two-sided $95\%$ \emph{Wilson score} interval
+\[
+  \frac{\hat{p}_G + \tfrac{z^2}{2 n_G} \;\pm\;
+  z\sqrt{\tfrac{\hat{p}_G(1-\hat{p}_G)}{n_G} + \tfrac{z^2}{4 n_G^2}}}
+  {1 + \tfrac{z^2}{n_G}},
+  \qquad z = 1.95996.
+\]
+We use the Wilson interval rather than the Wald (normal-approximation) interval precisely
+because it stays inside $[0,1]$ and remains well-calibrated for proportions near $0$ or
+$1$ and for the modest $n$ of a $127$-document corpus --- the regime where a strong
+protector's DIRECT leak rate is near zero and a Wald interval would extend below zero and
+understate uncertainty. We report all three groups: the overall residual disclosure rate,
+and the DIRECT and QUASI rates separately, because the privacy-relevant failure is
+concentrated in the DIRECT group (a single leaked DIRECT identifier discloses a subject),
+whereas QUASI leaks matter only in combination and are the natural bridge to the future
+$k$-anonymity diagnostic (Section~\ref{sec:futurework}).
+
+\paragraph{How this differs from the synthetic national-ID metric.}
+The two metrics share the per-subject, post-detection-residual, leak-iff-any-occurrence
+machinery and the Wilson-CI reporting, but differ in three load-bearing ways.
+(i)~\textbf{Evidentiary basis.} The national-ID metric scores \emph{synthetic} subjects on
+\texttt{dev} tracks; the TAB metric scores \emph{real}, externally peer-reviewed
+human-annotated subjects (\texttt{real-external-gold}), so the TAB axis is not gated on
+KLU-27. (ii)~\textbf{Subject key and disclosure model.} A national-ID subject is keyed by a
+\emph{checksum-validated normalized value} and a miss is a \emph{deterministic decode}
+(date-of-birth $+$ sex $+$ county), which is why we call it re-identification; a TAB
+subject is keyed by an \emph{annotated coreference id} $+$ identifier type, and a miss is a
+\emph{residual identifier disclosure} graded DIRECT vs.\ QUASI --- there is no decode, so it
+is deliberately \emph{not} called re-identification. (iii)~\textbf{Grouping.} The
+national-ID metric splits by \emph{decode-bearing} vs.\ \emph{coverage-only} family (and
+never emits a re-id number for coverage-only IDs); the TAB metric splits by the
+human-annotated DIRECT/QUASI sensitivity that the national-ID schemes do not carry.
+
+\subsection{Paired-bootstrap significance protocol}
+\label{subsec:paired-bootstrap}
+The leak rate is a property of the \emph{same} fixed set of gold subjects scored under two
+models, so comparisons must be \emph{paired}: an unpaired two-proportion test ignores that
+the two models are evaluated on identical items and the discordance is what carries the
+signal. For each model we dump per-subject outcomes
+$\{(\text{doc},\ \text{entity\_id},\ \tau,\ \mathrm{detected})\}$ in a deterministic order
+whose keys depend \emph{only} on the gold; the two dumps therefore align subject-for-subject
+without any post-hoc matching.
+
+Restricting to the privacy-critical DIRECT subjects, let
+$\mathcal{S} = \{s_1,\dots,s_n\}$ be the subjects scored by \emph{both} models, and for
+subject $s_k$ define the paired leak indicators
+$a_k = \mathbb{1}[\text{model A leaks } s_k]$ and
+$b_k = \mathbb{1}[\text{model B leaks } s_k]$. The observed statistic is the difference of
+leak rates
+\[
+  \widehat{\Delta} \;=\; \frac{1}{n}\sum_{k=1}^{n} a_k \;-\; \frac{1}{n}\sum_{k=1}^{n} b_k,
+\]
+negative when model A (the protector) leaks fewer DIRECT identifiers. We bootstrap the CI
+by resampling \emph{subjects} (not occurrences) with replacement $B = 2000$ times under a
+fixed seed: each replicate draws indices $i_1,\dots,i_n$ uniformly from $\{1,\dots,n\}$,
+recomputes $\Delta^{(b)} = \tfrac{1}{n}\sum_j a_{i_j} - \tfrac{1}{n}\sum_j b_{i_j}$, and the
+$95\%$ percentile interval is $[\Delta^{(\lfloor 0.025B\rfloor)},
+\Delta^{(\lceil 0.975B\rceil)}]$ over the sorted replicates. Resampling the paired
+\emph{subjects} preserves the within-subject coupling, which is what makes the interval a
+valid statement about the leak-rate difference rather than about two marginal proportions.
+The protector leaks significantly fewer DIRECT identifiers iff the interval lies
+\emph{entirely} below zero ($\Delta^{(\lceil 0.975B\rceil)} < 0$).
+
+This complements the item-paired McNemar test used on the synthetic national-ID axis
+(Section~\ref{sec:dissociation}): both are paired item-level tests on identical gold
+subjects, but McNemar gives an exact two-sided $p$ on the discordant pairs of a $0\%$-vs.\
+non-zero comparison, whereas the bootstrap yields a CI on the \emph{magnitude} of the
+DIRECT leak-rate gap on the real TAB gold, where the protector's leak is small but not
+necessarily exactly zero.
+
+\subsection{Real-structure $+$ synthetic-PII training, with contamination control}
+\label{subsec:cjeu-training}
+\paragraph{Training signal (CJEU structure).}
+The protector evaluated on the TAB/ECHR gold is trained on documents that reproduce the
+\emph{structure} of CJEU-style legal instruments --- the genre, sectioning, citation and
+boilerplate scaffolding --- while the personal data they carry is entirely
+\emph{synthetic} (generated names, addresses, dates, and CNP-bearing fields). No source
+text from any real corpus is redistributed or used as a label; only the document
+\emph{shape} is faithful. This gives the model in-genre legal register without ingesting
+real personal data.
+
+\paragraph{Contamination control vs.\ the ECHR eval.}
+The held-out evaluation is the \emph{real} ECHR gold (\texttt{tab-echr-legal-en-v1}), a
+\textbf{different} European court (CJEU structure for training vs.\ ECHR documents for
+evaluation), and the two share no documents, no annotations, and no source text. Under the
+EuroPriv-Bench \texttt{contamination} policy each $(\text{model},\ \text{config})$ row
+carries a marker; because no protector or baseline on the board was trained on the TAB/ECHR
+data, every system --- ours included --- is marked \texttt{clean\_held\_out} on this track.
+The CJEU-vs.-ECHR separation is the design choice that makes the TAB leak rate a fair
+held-out measurement of in-genre legal de-identification rather than an artifact of
+train/eval overlap; the protector never sees the eval corpus, the annotators, or even the
+same court ($0$ document overlap, $0/4578$ TAB-sentence verbatim hits, RES-72). The training
+data is synthetic-PII-only, so the protector also never trains on real personal data, and
+the eval data is real-but-externally-annotated, so its gold does not pass through the
+program's own KLU-27 gate. Consistent with the paper's claim-discipline, TAB/ECHR results
+are reported as \texttt{config\_status=real-external-gold} findings and carry no SOTA
+wording (\sotagate{}).
 
 \section{The Detection $\neq$ Re-identification Dissociation}
 \label{sec:dissociation}
-% PRIMARY EVIDENCE. All numbers from the EuroPriv-Bench leaderboard (ro/pl/it-realskeleton-v1),
+% PRIMARY SYNTHETIC EVIDENCE. All numbers from the EuroPriv-Bench leaderboard (ro/pl/it-realskeleton-v1),
 % europriv_bench_version 0.2.0, taxonomy 0.2.0, config_status=dev. Source of truth:
 % europriv-bench/baselines/leaderboard.json (ingested via `make results`).
 
@@ -195,19 +399,162 @@ the reverse. kp-deid vs.\ privacy-filter gives $b{=}16$, $c{=}0$ ($p\!=\!3.05\!\
 A genuine tie is reported honestly: kp-deid vs.\ Presidio gives $b{=}c{=}0$, $p{=}1$ (both reach
 $0\%$ CNP leak on this track). Source: \texttt{analysis/mcnemar\_ro\_realskeleton.md} (KLU-53).
 
+\section{The Dissociation on Real Legal Gold (TAB)}
+\label{sec:tab}
+% PRIMARY REAL-DATA EVIDENCE. The synthetic real-skeleton tracks (Section~\ref{sec:dissociation})
+% establish the dissociation under contamination-controlled but synthetic conditions; this section
+% shows it survives on externally annotated, REAL legal gold. Config: tab-echr-legal-en-v1.
+
+The real-skeleton tracks (Section~\ref{sec:dissociation}) establish the dissociation under
+contamination-controlled but synthetic conditions. We now show it survives on \emph{externally
+annotated, real legal gold}: the Text Anonymization Benchmark (TAB)~\cite{pilan2022tab}, drawn from
+European Court of Human Rights (ECHR) judgments. TAB ships its own human DIRECT/QUASI identifier
+annotations, so the re-identification-\emph{risk} axis is defined by an external party, not by us. We
+score it with \texttt{tab\_reid\_leakage} (Section~\ref{subsec:tab-metric}): the per-subject fraction
+of TAB-annotated DIRECT identifiers left un-redacted on the post-detection residual (lower is safer);
+on this board, a \emph{direct-identifier leak} denotes leaving such a DIRECT identifier in the
+residual ($n{=}264$ distinct DIRECT subjects; $3{,}701$ QUASI subjects). We call this the
+\emph{re-identification-risk axis} (a lower direct-identifier leak means lower re-identification
+risk), but the measured quantity is a \emph{direct-identifier leak rate}, not a re-identification
+rate --- the latter is reserved for the deterministic national-ID channel. Source:
+\texttt{europriv-bench/analysis/tab\_reid\_leaderboard.json} (config \texttt{tab-echr-legal-en-v1}).
+
+\subsection{The re-identification-risk board on TAB}
+\label{sec:tab-board}
+Table~\ref{tab:tab-board} ranks every scored system by DIRECT-identifier leak (ascending). The
+structure-trained protector \texttt{kp-cjeu-structure} leaks $9.5\%$ of distinct DIRECT subjects,
+roughly $5\times$ fewer than the next-best system (spaCy $49.6\%$, Presidio $50.0\%$); its Wilson
+CI $[0.065, 0.136]$ does not overlap theirs. It is \#1 on the privacy-relevant axis on real legal
+gold. Critically, \texttt{kp-cjeu-structure} reaches this from a real-legal-\emph{structure} /
+synthetic-PII training corpus (CJEU) evaluated \emph{zero-shot} on ECHR/TAB, with a verified
+contamination guard (CJEU $\neq$ ECHR; $0$ document and $0$ verbatim-sentence overlap, RES-72;
+Section~\ref{subsec:cjeu-training}). \texttt{kp-cjeu-structure} and \texttt{kp-cjeu-realprose} are
+scored from \emph{local checkpoints} (HF publication gated on RES-62) and are flagged as such in the
+table; the other rows are adapter-scored board entries. The openly-released \texttt{kp-deid}
+protector that leads the national-ID tracks (Section~\ref{sec:protector}) is a \emph{different}
+model and ranks $7$th here (DIRECT-leak $0.674$); we do not conflate the two.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Re-identification-risk board on \textbf{real legal gold} (TAB ECHR, English;
+\texttt{tab-echr-legal-en-v1}), ranked by per-subject DIRECT-identifier leak-rate (ascending; lower
+$=$ less re-identification risk) on the post-detection residual. $n{=}264$ distinct DIRECT subjects.
+Detection F1 is strict entity-F1 on the same docs. ``DIRECT-leak'' is the privacy axis;
+``QUASI-leak'' is the broader quasi-identifier residual (residual distinctiveness, not direct
+re-identification). $^{\dagger}$Scored from a local checkpoint (HF publication gated on RES-62), not
+an adapter-scored board entry. All numbers from
+\texttt{europriv-bench/analysis/tab\_reid\_leaderboard.json}; the \#1 line is corroborated by
+\texttt{klusai-models/docs/res104-reid-win-scorecard.md}. \texttt{config\_status=real-external-gold}
+(citable within scope; not under KLU-27). No SOTA / best-protector wording. \sotagate{}}
+\label{tab:tab-board}
+\begin{tabular}{clccc}
+\toprule
+Rank & Model & DIRECT-leak $\downarrow$ & 95\% CI & Detection F1 \\
+\midrule
+\textbf{1} & \textbf{kp-cjeu-structure (ours)}$^{\dagger}$ & \textbf{0.095} & $[0.065,\,0.136]$ & 0.340 \\
+2 & spaCy \texttt{en\_core\_web\_lg}        & 0.496 & $[0.436,\,0.556]$ & 0.480 \\
+3 & Presidio                                & 0.500 & $[0.440,\,0.560]$ & 0.589 \\
+4 & GLiNER multi-pii                        & 0.599 & --- & 0.357 \\
+5 & tabularisai eu-pii-safeguard            & 0.625 & --- & 0.073 \\
+6 & GLiNER2-base                            & 0.651 & --- & 0.545 \\
+7 & kp-deid-mdeberta-280m (ours)            & 0.674 & --- & 0.199 \\
+8 & kp-cjeu-realprose (ours)$^{\dagger}$    & 0.867 & --- & 0.265 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Detection-F1 and leak are dissociated on real data too}
+\label{sec:tab-dissociation}
+The anti-correlation that holds on synthetic real-skeleton survives on TAB. The \emph{highest}
+detection-F1 system, Presidio ($0.589$), is only the $3$rd-safest ($50.0\%$ DIRECT-leak); the second
+strongest detector, GLiNER2-base (F1 $0.545$), is the $6$th-safest ($65.1\%$ leak). Conversely the
+\#1-on-privacy \texttt{kp-cjeu-structure} sits at detection-F1 $0.340$ ($5$th on detection) yet leaks
+$5\times$ fewer DIRECT identifiers than anything above it. Strict entity-F1 penalises span-boundary
+and entity-type disagreement that does not matter for privacy, while the re-id-risk metric rewards
+what does --- not \emph{leaving identifiers behind}. On externally annotated real legal text, ranking
+by detection accuracy and ranking by direct-identifier protection produce essentially \emph{different}
+orderings: the dissociation is not an artifact of synthetic data.
+
+\subsection{The kp-cjeu-structure \#1: 3-seed robust and paired-bootstrap significant}
+\label{sec:tab-significance}
+The \#1 result is not a single-seed artifact and the gap to the runner-up is statistically
+significant under an item-paired test.
+
+\textbf{Seed robustness.} Across three seeds $(0,1,2)$, DIRECT-leak is
+$\{0.0947, 0.0985, 0.0985\}$ (mean $0.097$, range $0.004$) --- a spread two orders of magnitude
+below the gap to spaCy ($0.496$). Detection-F1 across the same seeds is $\{0.340, 0.309, 0.317\}$.
+(Source: \texttt{res104-reid-win-scorecard.md}.)
+
+\textbf{Paired-bootstrap $\Delta$ CI.} On the $264$ DIRECT subjects shared with the runner-up
+(spaCy), the per-subject DIRECT-leak difference is
+$\Delta(\text{kp}-\text{spacy}) = -0.40$ ($0.0947$ vs.\ $0.4962$), $95\%$ CI $[-0.477, -0.322]$ over
+$2{,}000$ resamples --- fully below zero, so \texttt{kp-cjeu-structure} leaks significantly fewer
+DIRECT identifiers than the next-best system. (Source:
+\texttt{europriv-bench/analysis/reid\_paired\_bootstrap.json}.) Combined with the seed robustness,
+this makes the \#1 a defensible claim scoped to TAB English legal gold.
+
+\subsection{The win is not over-tagging}
+\label{sec:tab-not-overtagging}
+A trivial way to drive leak toward zero is to redact everything; \texttt{kp-cjeu-structure} does
+\emph{not} do this. On TAB it predicts non-\texttt{O} (would-redact) tokens at $9.1\%$, \emph{below}
+the gold non-\texttt{O} rate of $11.3\%$ --- it under-tags overall rather than blanket-redacting.
+Its over-redaction rate (false-positive redacted tokens) is $4.3\%$, a low utility cost. So the low
+leak comes from efficiently touching the \emph{right} identifier tokens, not from carpet redaction;
+this is precisely why its strict detection-F1 is only $0.340$ (boundary/type disagreement) while its
+direct-identifier leak is best by far. (Source: \texttt{tab\_reid\_leaderboard.json},
+\texttt{res104-reid-win-scorecard.md}.)
+
+\subsection{The synthesis ceiling on detection-F1 (we do not lead detection)}
+\label{sec:tab-synthesis-ceiling}
+We concede the negative explicitly. On TAB \emph{detection}-F1, synthetic training caps below
+Presidio's $0.589$: a generic-synthetic recipe reaches only $0.244$, the real-\emph{structure} (CJEU)
+recipe is the best of the synthetic regimes at $0.340$, and the real-\emph{prose} recipe is $0.265$
+--- all far below Presidio. Synthesis closes the \emph{protection} gap (direct-identifier leak), not
+the raw detection gap. (Source scorecards: \texttt{res72-cjeu-tab-transfer},
+\texttt{res104-xlmr560m-stageb}, \texttt{res102-stageb-transfer},
+\texttt{res104-reid-win} in \texttt{klusai-models/docs/}.) This is a citable \emph{negative} on real
+external gold and de-risks any over-claim: we lead the direct-identifier-protection axis, not
+detection-F1.
+
+\subsection{Scope and honesty}
+\label{sec:tab-scope}
+We report this on \emph{one} board (TAB, English legal). \texttt{tab\_reid\_leakage} is \emph{our}
+metric (competitors publish only detection-F1), but it is grounded in TAB's own external DIRECT/QUASI
+annotations, not a self-serving construct; the claim is ``\texttt{kp-cjeu-structure} leads on
+direct-identifier protection (re-identification \emph{risk}),'' not ``beats competitors on
+detection-F1.'' The training corpus is real legal \emph{structure} with checksum-/format-valid
+\emph{synthetic} PII (not real PII). The TAB-leading checkpoint \texttt{kp-cjeu-structure} is a
+research model whose public release is gated on RES-62; the openly-released \texttt{kp-deid} protector
+of Section~\ref{sec:protector} is a \emph{different} model and ranks last on this TAB axis. We make no
+``best/strongest/SOTA'' claim. \sotagate{} Breadth (other languages and domains) is the RES-72
+multilingual follow-up.
+
 \section{An Open Protector that Escapes the Leak Axis}
 \label{sec:protector}
 % kp-deid-mdeberta-280m: trained for the redaction objective; 0% national-ID leak on RO/PL/IT
 % real-skeleton at non-maximal but competitive F1. Openly released. Reproducible via the leaderboard
 % submission protocol (SUBMISSIONS.md). NO "best protector" / SOTA wording here — gated.
+% NOTE: "the protector" is NOT a single model. The released kp-deid-mdeberta-280m leads the national-ID
+% axis; a DISTINCT, not-yet-released kp-cjeu-structure leads the TAB direct-identifier axis (sec:tab).
 We release \texttt{kp-deid-mdeberta-280m}, a $280$M-parameter protector trained for the redaction
 objective rather than for span detection. It attains $0\%$ national-ID leak on all three
 real-skeleton tracks (RO/PL/IT) at competitive but non-maximal detection F1 (Table~\ref{tab:dissociation}),
 i.e.\ it sits off the detection-optimal frontier. The model and the scoring harness are openly
 released; results are reproduced by CI through the public submission protocol, never self-reported.
-\sotagate{}
+
+This $0\%$ figure is specific to the \emph{synthetic} national-ID channel. On the \emph{real} TAB
+ECHR gold (Section~\ref{sec:tab}), the same released \texttt{kp-deid-mdeberta-280m} is \emph{not} the
+model that escapes the leak axis: it ranks $7$th of $8$ on DIRECT-identifier leak ($0.674$). The
+model that leads the real-gold direct-identifier axis is the structure-trained
+\texttt{kp-cjeu-structure} ($9.5\%$ leak), a \emph{distinct research checkpoint} whose HF publication
+is gated on RES-62. ``The protector'' is therefore better read as a \emph{family} of redaction-trained
+models: the openly-released \texttt{kp-deid} leads the synthetic national-ID axis, while the
+not-yet-released \texttt{kp-cjeu-structure} leads the real TAB direct-identifier axis. A reader must
+not carry the synthetic-track ``$0\%$ leak'' onto TAB. \sotagate{}
 % TODO: model card link, training-data provenance (synthetic train kept separate from held-out gold),
-% architecture details, and the kp-deid v2 multilingual training note once that artifact lands.
+% architecture details, the kp-deid v2 multilingual training note, and the RES-62 release status of
+% kp-cjeu-structure once that artifact lands.
 
 \section{Corroborating Evidence: A Second, Independent Mechanism (Preliminary)}
 \label{sec:corroborating}
@@ -241,26 +588,97 @@ itself subsumes the prior de-identification art (TAB~\cite{pilan2022tab},
 AI4Privacy~\cite{ai4privacy_openpii}, MAPA~\cite{mapa_toolkit},
 MultiGraSCCo~\cite{multigrascco2026}, MEDDOCAN~\cite{meddocan2019},
 GLiNER2-PII~\cite{gliner2pii2026}, SPY~\cite{spy2025}). Our contribution is orthogonal to the
-benchmark: a \emph{unified dissociation} result and an open protector. The closest concurrent and
-independent work is RAT-Bench~\cite{ratbench2026}, a hosted re-identification-risk leaderboard; it is
-complementary rather than overlapping --- it is built on U.S.\ demographics
-(English/Spanish/Chinese), contains no legal text, and uses no GDPR-aligned taxonomy, so it does not
-address the European national-ID re-identification setting studied here.
-\textbf{[TODO: re-run the KLU-15 prior-art rescan before any broadened public claim --- KLU-15
-predates the 3-ID / legal / Track-C expansion. Confirm ``first \emph{unified}'' still holds and cite
-any new concurrent dissociation work, e.g.\ RAT-Bench, honestly.]}
+benchmark: a \emph{unified dissociation} result and an open protector.
+
+\textbf{TAB as an external real-data anchor.} The Text Anonymization Benchmark
+(TAB)~\cite{pilan2022tab} is the established, peer-reviewed gold standard for legal de-identification:
+human-annotated European Court of Human Rights (ECHR) judgments with a published taxonomy that
+separates \emph{direct} identifiers (names, case numbers) from \emph{quasi}-identifiers. Because the
+synthetic real-skeleton tracks studied above are \texttt{config\_status=dev} (gated on KLU-27 /
+RES-77 native-speaker review), we additionally evaluate against TAB as an \emph{external} anchor on
+real human-labelled text, where no native-speaker validation gate applies. On TAB's
+direct-identifier leak axis (per-subject residual leak after detection; lower is better, over $264$
+paired direct-identifier subjects), our protector trained on real CJEU judgment \emph{structure}
+(\texttt{kp-cjeu-structure}) attains a $0.095$ direct leak rate, ranking first --- ahead of spaCy
+($0.496$), Presidio ($0.500$), GLiNER ($0.599$), \texttt{tabularisai} ($0.625$), GLiNER2 ($0.651$),
+and our own \texttt{kp-deid-mdeberta-280m} ($0.674$). The lead is robust across three seeds
+($\{0.0947, 0.0985, 0.0985\}$) and statistically significant under a paired bootstrap against the
+runner-up spaCy ($\Delta = -0.40$, $95\%$ CI $[-0.477, -0.322]$;
+\texttt{reid\_paired\_bootstrap.json}), and it is not an over-tagging artefact (predicted non-\texttt{O}
+$9.1\% < $ gold $11.3\%$; over-redaction $4.3\%$). Crucially, the same anchor exhibits the
+dissociation this paper documents on an independent gold set: the detection-F1 leader on TAB is
+Presidio ($0.589$), yet Presidio leaves $50\%$ of direct identifiers in the residual, and GLiNER2 ---
+second on F1 ($0.545$) --- is near-worst on leak ($0.651$). \texttt{kp-cjeu-structure} sits mid-pack
+on detection-F1 ($0.340$) while leading on protection. We therefore frame the TAB result as
+\emph{direct-identifier protection on real legal gold} that bounds re-identification \emph{risk}, and
+reserve the term \emph{re-identification} for the deterministic, decode-bearing national-ID channel
+(CNP / PESEL / Codice Fiscale) of the main study; the two are distinct channels measured on distinct
+data and should not be conflated. The TAB result reuses TAB's own externally-annotated DIRECT/QUASI
+identifier types; only the leak-rate aggregation (\texttt{tab\_reid\_leakage}) is ours, and
+competitors are scored on TAB detection-F1 with their published configs (reproducible by CI), never
+self-reported.
+
+\textbf{Real vs.\ synthetic training, and the synthesis ceiling.} \texttt{kp-cjeu-structure} is
+trained on real CJEU judgment \emph{structure} (Apache-2.0) populated with synthetic, checksum-valid
+PII that is gold by construction; since CJEU $\neq$ ECHR, the TAB evaluation is zero-shot with no
+training-set contamination. This pairing also isolates what real data buys: on TAB detection-F1, a
+generic-synthetic recipe reaches only $0.244$ and a real-\emph{prose} recipe $0.265$, while the
+real-\emph{structure} recipe is best at $0.340$ --- yet all three remain well below Presidio's
+$0.589$ detection-F1, underscoring that synthesis closes the protection gap, not the raw detection
+gap (source scorecards: \texttt{res104-reid-win}, \texttt{res72-cjeu-tab-transfer},
+\texttt{res104-xlmr560m-stageb}, \texttt{res102-stageb-transfer} in \texttt{klusai-models/docs/}). The
+openly-released protector evaluated on the national-ID tracks is the \emph{distinct}
+\texttt{kp-deid-mdeberta-280m}; \texttt{kp-cjeu-structure} is a local research checkpoint whose public
+release is gated on RES-62 and is not yet openly available.
+
+\textbf{Concurrent re-identification-risk work.} The closest concurrent and independent work is
+RAT-Bench~\cite{ratbench2026}, a hosted re-identification-risk leaderboard; it is complementary
+rather than overlapping --- it is built on U.S.\ demographics (English/Spanish/Chinese), contains no
+legal text, and uses no GDPR-aligned taxonomy, so it does not address either the European national-ID
+re-identification setting or the European legal direct-identifier setting studied here.
+
+\textbf{Scope and caveats on the TAB claim.} The TAB direct-identifier ranking is a citable result on
+real external gold and is \emph{not} subject to the KLU-27 gate that covers the synthetic tracks.
+However, it is bounded: a single board (TAB ECHR, English legal text), the direct-identifier axis
+only, and a single protector architecture/recipe. We make no ``best/strongest/SOTA'' claim and no
+multilingual or cross-domain generalization claim from it. \textbf{[TODO: re-run the KLU-15 prior-art
+rescan before any broadened public claim --- KLU-15 predates the 3-ID / legal / Track-C expansion and
+predates this TAB external-anchor result. Confirm ``first \emph{unified}'' still holds, surface any
+concurrent legal-de-id or re-id-risk leaderboards, and cite any new concurrent dissociation work,
+e.g.\ RAT-Bench, honestly.]}
 
 \section{Limitations}
 \label{sec:limitations}
-% Be honest. This is a finding, not a validated/citable claim.
+% Be honest. Synthetic tracks are findings (dev). TAB direct-identifier results are real external gold,
+% citable IN SCOPE, but single-board/single-arch/single-language and NOT re-identification rates.
 \begin{itemize}
-  \item \textbf{Not yet validated (\texttt{config\_status=dev}).} Every number here is a finding on
-        contamination-controlled but \texttt{dev}-status tracks. SOTA / ``best protector'' claims are
-        \textbf{gated on KLU-27} (native-speaker review + inter-annotator agreement on
-        \texttt{ro-realskeleton}). \sotagate{}
+  \item \textbf{Synthetic-track numbers not yet validated (\texttt{config\_status=dev}).} The
+        \emph{national-ID / real-skeleton} numbers are findings on contamination-controlled but
+        \texttt{dev}-status \emph{synthetic} tracks, gated on KLU-27. SOTA / ``best protector'' claims
+        on these tracks are \textbf{gated on KLU-27} (native-speaker review + inter-annotator
+        agreement on \texttt{ro-realskeleton}). (The TAB direct-identifier results are on real
+        external gold and are exempt from this gate; see the TAB limitations below.) \sotagate{}
   \item \textbf{Synthetic real-skeleton data.} The real-skeleton tracks are synthetic; the leak-rate
         measures protection on synthetic subjects, not a population re-identification rate against a
         real reference population.
+  \item \textbf{TAB result is single-board, single-architecture, single-language.} The
+        direct-identifier-protection leadership is measured on one board (TAB, English ECHR legal
+        text only) with a single model architecture; breadth across languages/domains is future work
+        (RES-72 follow-up). It does \emph{not} establish general de-identification SOTA.
+  \item \textbf{TAB direct-identifier $\neq$ deterministic re-identification.} The TAB axis measures
+        \emph{direct-identifier} leak (names, case numbers, addresses), a broader and
+        non-deterministic notion than the decode-bearing national-ID re-identification used on the
+        synthetic tracks. We report it as re-identification-\emph{risk} reduction, not as a measured
+        re-identification rate.
+  \item \textbf{The TAB-leading checkpoint is not yet publicly released.} \texttt{kp-cjeu-structure}
+        (the \#1 on direct-identifier leak) is a research checkpoint; public release is gated
+        (RES-62). The openly released protector evaluated on the national-ID tracks
+        (\texttt{kp-deid-mdeberta-280m}) is a different model and ranks last on the TAB
+        direct-identifier axis (leak $0.674$). We do not conflate the two.
+  \item \textbf{Single seed for the reported point, 3-seed confirmed.} The published TAB number uses
+        seed~0; robustness is confirmed across seeds \{0,1,2\} (direct-leak $\{0.0947,0.0985,0.0985\}$,
+        detection-F1 $\{0.340,0.309,0.317\}$). The \texttt{tab\_reid\_leakage} metric is ours
+        (competitors publish only detection-F1), though grounded in TAB's own DIRECT/QUASI annotations.
   \item \textbf{Name-in-context channel is preliminary.} Its sample basis is not reconciled with the
         board's $n{=}1123$ and it predates KLU-27 (Section~\ref{sec:corroborating}).
   \item \textbf{No QI-combination metric yet.} We do not yet measure $k$-anonymity-style
@@ -273,15 +691,23 @@ any new concurrent dissociation work, e.g.\ RAT-Bench, honestly.]}
 \section{Future Work}
 \label{sec:futurework}
 % QI-combination (PURR) metric = KLU-122. Reconcile name channel. kp-deid v2 multilingual. KLU-27.
+% RES-72 multilingual/cross-domain TAB-style breadth. RES-62 release of kp-cjeu-structure.
 \begin{itemize}
   \item \textbf{QI-combination re-identification (PURR) metric (KLU-122).} Tag binned
         quasi-identifier tuples in gold (DOB/age band, sex, locality/NUTS, nationality, profession,
         rare-condition flag) to enable a $k$-anonymity-violation diagnostic --- moving from
-        \emph{residual distinctiveness} toward measured population re-identification risk.
+        \emph{residual distinctiveness} toward measured population re-identification risk. The TAB
+        QUASI channel ($3{,}701$ subjects) is the natural bridge into this diagnostic.
+  \item \textbf{Multilingual / cross-domain breadth on real gold (RES-72).} Extend the TAB-style
+        external-gold evaluation beyond English ECHR legal text to additional languages and domains
+        so the direct-identifier-protection result is no longer single-board / single-architecture.
+  \item \textbf{Public release of \texttt{kp-cjeu-structure} (RES-62).} Clear the HF publication gate
+        so the TAB-leading checkpoint becomes an openly-released artifact rather than a local
+        research checkpoint.
   \item \textbf{Reconcile and validate the name-in-context channel} against $n{=}1123$ post-KLU-27.
   \item \textbf{kp-deid v2 multilingual protector} and broadened track coverage.
   \item \textbf{Native-speaker + IAA validation (KLU-27)} to clear the \texttt{dev} tracks and unlock
-        citable claims.
+        citable claims on the synthetic national-ID axis.
 \end{itemize}
 
 \bibliographystyle{plain}
