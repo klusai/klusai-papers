@@ -2,10 +2,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
 \usepackage{booktabs}
+\usepackage{graphicx}
 \usepackage{pifont} % \ding{51} = check, \ding{55} = cross (coverage table)
 
 \title{EuroPriv-Bench: A Unified Pan-European De-identification Benchmark\\
-       with Privacy-Utility Metrics}
+       with Re-identification Risk Metrics}
 \author{KlusAI}
 \date{2026}
 
@@ -104,6 +105,7 @@ is built to close.
 re-identification-risk metric, (f)~open reproducible leaderboard. Every prior row is missing
 $\geq 2$ columns; only EuroPriv-Bench fills all six.}
 \label{tab:related}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
 Artifact & (a) EU x-ling & (b) legal & (c) clinical & (d) GDPR tax. & (e) re-id metric & (f) leaderboard \\
@@ -122,8 +124,14 @@ PIIBench~\cite{piibench2026}            & \ding{51} & \ding{55} & \ding{55} & \d
 \midrule
 \textbf{EuroPriv-Bench (ours)}          & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} & \ding{51} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
+
+\section{Limitations}
+Validation follows the LLM-panel protocol of RES-77, not native-speaker human
+validation. Panel agreement cannot establish human inter-annotator agreement or
+native-speaker naturalness; no completed panel outcome is claimed in this manuscript.
 
 \bibliographystyle{plain}
 \bibliography{../../shared/klusai}

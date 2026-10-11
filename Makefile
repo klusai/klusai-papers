@@ -1,9 +1,17 @@
-.PHONY: help results europriv-bench synthetic-drift underserved-sota privacy-utility dissociation-protector clean
+.PHONY: help results europriv-bench arxiv check synthetic-drift underserved-sota privacy-utility dissociation-protector clean
+
+PYTHON ?= python3.13
+RUFF ?= ruff
+# Multi-architecture digest of the locally used texlive/texlive image (TeX Live 2026).
+TEX_IMAGE ?= texlive/texlive@sha256:a7ae4dfa9d521b5db14446872fa488b839021d1f604d0a3c74461784895f2a67
+export TEX_IMAGE
 
 # Source of truth for benchmark numbers. Override for a sibling checkout layout if needed.
 LEADERBOARD := ../europriv-bench/baselines/leaderboard.json
 
 help:
+	@echo "  make arxiv          - build Paper 1 PDF + self-contained source tarball with Docker"
+	@echo "  make check          - Python 3.13 lint + publication contract tests"
 	@echo "  make results        - pull the committed leaderboard into results/ (reproducible builds)"
 	@echo "Build a paper PDF (requires latexmk + TeX):"
 	@echo "  make europriv-bench"
@@ -28,7 +36,14 @@ define build_paper
 endef
 
 europriv-bench:
-	$(call build_paper,europriv-bench)
+	$(PYTHON) scripts/arxiv.py
+
+arxiv: europriv-bench
+
+check:
+	$(RUFF) check scripts tests
+	$(RUFF) format --check scripts tests
+	$(PYTHON) -m unittest discover -s tests -v
 
 synthetic-drift:
 	$(call build_paper,synthetic-drift)

@@ -15,3 +15,10 @@ results/raw/
 
 # OS
 .DS_Store
+
+# Publication staging and release artifacts
+/build/
+/dist/
+__pycache__/
+.ruff_cache/
+.venv/
