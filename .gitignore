@@ -16,6 +16,10 @@ results/raw/
 # OS
 .DS_Store
 
+# Publication staging and release artifacts
+/build/
+/dist/
+
 # Local Python tooling
 .venv/
 __pycache__/

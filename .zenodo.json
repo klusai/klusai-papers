@@ -1,0 +1,15 @@
+{
+  "title": "EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Re-identification Risk Metrics",
+  "upload_type": "publication",
+  "publication_type": "preprint",
+  "description": "EuroPriv-Bench unifies European legal and clinical de-identification evaluation under a harmonized taxonomy and re-identification-risk metrics. This release contains the Paper 1 manuscript and its build sources. Validation follows an LLM-panel protocol, not native-speaker human review; panel outcomes must be reported separately.",
+  "creators": [{"name": "KlusAI", "affiliation": "KlusAI"}],
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "keywords": ["de-identification", "anonymization", "GDPR", "re-identification risk", "multilingual NLP", "legal NLP", "clinical NLP", "benchmark"],
+  "related_identifiers": [
+    {"identifier": "https://github.com/klusai/klusai-papers", "scheme": "url", "relation": "isSupplementTo"},
+    {"identifier": "https://huggingface.co/datasets/klusai/europriv-bench", "scheme": "url", "relation": "references"},
+    {"identifier": "https://research.klusai.com/papers/europriv-bench/", "scheme": "url", "relation": "isDocumentedBy"}
+  ]
+}

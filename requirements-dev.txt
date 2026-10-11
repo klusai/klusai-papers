@@ -1,2 +1,2 @@
-ruff==0.14.0
-PyYAML==6.0.3
+# Keep PR CI and publication checks on the same pinned tools.
+-r requirements-check.txt

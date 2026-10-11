@@ -8,7 +8,7 @@ arXiv-style papers for the KlusAI Privacy program. Results are auto-ingested fro
 
 | # | Dir | Title | Status |
 |---|-----|-------|--------|
-| 1 | `papers/europriv-bench/` | **EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Privacy-Utility Metrics** | flagship — ships first |
+| 1 | `papers/europriv-bench/` | **EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Re-identification Risk Metrics** | flagship — ships first |
 | 2 | `papers/synthetic-drift/` | Closing the synthetic-to-real gap in multilingual legal/clinical PII generation | dataset paper |
 | 3 | `papers/underserved-sota/` | Open SOTA de-identification for under-served European languages | model paper |
 | 4 | `papers/privacy-utility/` | Privacy-utility & re-identification-risk tradeoffs in anonymization | eval paper |
@@ -30,8 +30,15 @@ results/             JSON/markdown results ingested from other repos (gitignored
 
 ```bash
 make results             # pull europriv-bench's committed leaderboard.json into results/ (reproducible)
-make europriv-bench      # build one paper's PDF (requires latexmk + a TeX distribution)
+make install check       # Python 3.13; install shared dev tools and run all offline checks
+make arxiv               # Paper 1 PDF + verified source tarball (requires Docker)
+make europriv-bench      # same Paper 1 build; other paper targets use local latexmk
 ```
+
+Paper 1 artifacts are `dist/paper1.pdf` and `dist/paper1-arxiv.tar.gz`.
+The Docker TeX image is pinned in `Makefile`; `TEX_IMAGE` can override it for compatibility checks.
+See [`docs/PAPER1_PUBLICATION.md`](docs/PAPER1_PUBLICATION.md) for the build contract,
+title reconciliation, release automation, and remaining manuscript limitations.
 
 `make results` makes the paper build reproducible (it doesn't depend on a developer having
 run the pipeline by hand). The ingested JSON should be validated against `europriv_bench`'s
@@ -52,8 +59,7 @@ make check
 The `test` CI job runs the same Ruff lint/format checks and offline unit tests on PRs
 and pushes to `main`. Tests check paper environments, references, citations and figures,
 plus auto-merge behavior using a fake GitHub CLI. They do not compile PDFs, download
-HF assets, ingest sibling-repo results, or validate benchmark numbers. No existing tests
-are skipped; this repository previously had no test suite or Python dependencies.
+HF assets, ingest sibling-repo results, or validate benchmark numbers. Publication packaging and metadata checks run in the same suite; no existing tests are skipped.
 
 Auto-merge is ported from [rb-cli](https://github.com/klusai/rb-cli/blob/main/.github/workflows/auto-merge.yml).
 It squash-merges eligible PRs through GitHub native auto-merge. Before enabling it, an

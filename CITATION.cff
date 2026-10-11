@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use EuroPriv-Bench, please cite this work."
-title: "EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Privacy-Utility Metrics"
-type: dataset
+title: "EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Re-identification Risk Metrics"
+type: software
 authors:
   - name: "KlusAI"
 license: "Apache-2.0"
@@ -20,7 +20,7 @@ keywords:
   - leaderboard
 preferred-citation:
   type: article
-  title: "EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Privacy-Utility Metrics"
+  title: "EuroPriv-Bench: A Unified Pan-European De-identification Benchmark with Re-identification Risk Metrics"
   authors:
     - name: "KlusAI"
   year: 2026
