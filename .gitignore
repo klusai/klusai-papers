@@ -19,6 +19,8 @@ results/raw/
 # Publication staging and release artifacts
 /build/
 /dist/
+
+# Local Python tooling
+.venv/
 __pycache__/
 .ruff_cache/
-.venv/

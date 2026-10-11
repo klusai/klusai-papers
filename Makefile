@@ -1,4 +1,4 @@
-.PHONY: help results europriv-bench arxiv check synthetic-drift underserved-sota privacy-utility dissociation-protector clean
+.PHONY: help install lint test check results europriv-bench arxiv synthetic-drift underserved-sota privacy-utility dissociation-protector clean
 
 PYTHON ?= python3.13
 RUFF ?= ruff
@@ -11,7 +11,7 @@ LEADERBOARD := ../europriv-bench/baselines/leaderboard.json
 
 help:
 	@echo "  make arxiv          - build Paper 1 PDF + self-contained source tarball with Docker"
-	@echo "  make check          - Python 3.13 lint + publication contract tests"
+	@echo "  make install check  - install dev tools, lint, and run offline tests (Python 3.13)"
 	@echo "  make results        - pull the committed leaderboard into results/ (reproducible builds)"
 	@echo "Build a paper PDF (requires latexmk + TeX):"
 	@echo "  make europriv-bench"
@@ -19,6 +19,18 @@ help:
 	@echo "  make underserved-sota"
 	@echo "  make privacy-utility"
 	@echo "  make dissociation-protector  (KLU-110 skeleton draft)"
+
+install:
+	$(PYTHON) -m pip install -r requirements-dev.txt
+
+lint:
+	$(RUFF) check .
+	$(RUFF) format --check .
+
+test:
+	$(PYTHON) -m unittest discover -s tests -v
+
+check: lint test
 
 results:
 	@mkdir -p results
@@ -39,11 +51,6 @@ europriv-bench:
 	$(PYTHON) scripts/arxiv.py
 
 arxiv: europriv-bench
-
-check:
-	$(RUFF) check scripts tests
-	$(RUFF) format --check scripts tests
-	$(PYTHON) -m unittest discover -s tests -v
 
 synthetic-drift:
 	$(call build_paper,synthetic-drift)

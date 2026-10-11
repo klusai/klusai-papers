@@ -1,0 +1,95 @@
+name: Auto-merge
+
+# Ported from https://github.com/klusai/rb-cli/blob/main/.github/workflows/auto-merge.yml.
+# An admin must enable repository auto-merge and require `test` on main first.
+# Prefer not requiring an up-to-date branch: native auto-merge cannot update it.
+# This privileged workflow never checks out or executes PR code.
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled, unlabeled, ready_for_review, converted_to_draft, edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Resolve Dependabot metadata
+        id: dependabot
+        if: github.event.pull_request.user.login == 'dependabot[bot]'
+        continue-on-error: true
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Apply auto-merge policy
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          UPDATE_TYPE: ${{ steps.dependabot.outputs.update-type }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Read current state, not stale labels/draft/head from the triggering event.
+          pr=$(gh api "repos/$GH_REPO/pulls/$PR_NUMBER")
+          if ! jq -e '.state == "open" and .base.ref == "main"' <<< "$pr" >/dev/null; then
+            exit 0
+          fi
+
+          # The branch endpoint needs only contents:read (unlike /protection,
+          # which needs administration:read, unavailable to GITHUB_TOKEN).
+          # Fail closed on missing protection, missing test, or API failure.
+          if ! protection=$(gh api "repos/$GH_REPO/branches/main"); then
+            echo "::warning::Cannot verify branch protection; auto-merge unchanged."
+            exit 0
+          fi
+          if ! jq -e '
+            .protected == true and
+            (.protection.required_status_checks |
+              (.enforcement_level == "non_admins" or .enforcement_level == "everyone") and
+              (((.contexts // []) + [.checks[]?.context]) | index("test") != null))
+          ' <<< "$protection" >/dev/null; then
+            echo "::notice::Auto-merge inactive: main must enforce the required test check."
+            exit 0
+          fi
+
+          eligible=true
+          if ! jq -e '.head.repo.full_name == .base.repo.full_name' <<< "$pr" >/dev/null; then
+            eligible=false
+          fi
+          if [ "$(jq -r '.user.login' <<< "$pr")" = 'dependabot[bot]' ]; then
+            case "$UPDATE_TYPE" in
+              version-update:semver-minor|version-update:semver-patch) ;;
+              *) eligible=false ;;
+            esac
+          fi
+          head_ref=$(jq -r '.head.ref' <<< "$pr")
+          case "$head_ref" in
+            review/*|hold/*) eligible=false ;;
+          esac
+
+          # Maintainer opt-in overrides fork/branch/major holds, as in rb-cli.
+          if jq -e 'any(.labels[]; .name == "automerge")' <<< "$pr" >/dev/null; then
+            eligible=true
+          fi
+          # Draft and exact hold labels always beat the opt-in.
+          if jq -e '.draft or any(.labels[]; .name == "needs-review" or .name == "hold")' \
+            <<< "$pr" >/dev/null; then
+            eligible=false
+          fi
+
+          if [ "$eligible" = true ]; then
+            head_sha=$(jq -r '.head.sha' <<< "$pr")
+            gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --auto --squash --match-head-commit "$head_sha"
+          elif jq -e '.auto_merge != null' <<< "$pr" >/dev/null; then
+            gh pr merge "$PR_NUMBER" --repo "$GH_REPO" --disable-auto
+          fi
