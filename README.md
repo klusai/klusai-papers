@@ -38,6 +38,37 @@ run the pipeline by hand). The ingested JSON should be validated against `europr
 versioned results schema before `\input` so paper numbers trace to a known harness +
 taxonomy version.
 
+## Local checks and PR CI
+
+Use Python 3.13 in a virtual environment, with `bash` and `jq` on PATH:
+
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate
+make install
+make check
+```
+
+The `test` CI job runs the same Ruff lint/format checks and offline unit tests on PRs
+and pushes to `main`. Tests check paper environments, references, citations and figures,
+plus auto-merge behavior using a fake GitHub CLI. They do not compile PDFs, download
+HF assets, ingest sibling-repo results, or validate benchmark numbers. No existing tests
+are skipped; this repository previously had no test suite or Python dependencies.
+
+Auto-merge is ported from [rb-cli](https://github.com/klusai/rb-cli/blob/main/.github/workflows/auto-merge.yml).
+It squash-merges eligible PRs through GitHub native auto-merge. Before enabling it, an
+admin must allow repository auto-merge and protect `main` with the required `test` check.
+The workflow stays inactive if it cannot verify that protection via GitHub's branch API;
+ruleset-only protection that does not expose the required check there also stays inactive.
+Configure Codex review separately in the repository's review settings; this workflow
+does not request reviews or replace any required review rules.
+
+Drafts and `needs-review`/`hold` labels are hard stops and disable queued auto-merge.
+Forks, `review/` or `hold/` branches, and Dependabot major/unknown updates need the
+maintainer's `automerge` label; that label never overrides a hard stop. The privileged
+workflow reads current PR metadata and never checks out PR code. It does not update
+stale branches, so requiring up-to-date branches can leave auto-merge waiting.
+
 ## Reproducibility & submissions
 
 Papers and the public EuroPriv-Bench leaderboard share one reproducibility bar:
