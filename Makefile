@@ -1,9 +1,12 @@
-.PHONY: help results europriv-bench synthetic-drift underserved-sota privacy-utility dissociation-protector clean
+.PHONY: help install lint test check results europriv-bench synthetic-drift underserved-sota privacy-utility dissociation-protector clean
+
+PYTHON ?= python
 
 # Source of truth for benchmark numbers. Override for a sibling checkout layout if needed.
 LEADERBOARD := ../europriv-bench/baselines/leaderboard.json
 
 help:
+	@echo "  make install check  - install dev tools, lint, and run offline tests (Python 3.13)"
 	@echo "  make results        - pull the committed leaderboard into results/ (reproducible builds)"
 	@echo "Build a paper PDF (requires latexmk + TeX):"
 	@echo "  make europriv-bench"
@@ -11,6 +14,18 @@ help:
 	@echo "  make underserved-sota"
 	@echo "  make privacy-utility"
 	@echo "  make dissociation-protector  (KLU-110 skeleton draft)"
+
+install:
+	$(PYTHON) -m pip install -r requirements-dev.txt
+
+lint:
+	$(PYTHON) -m ruff check .
+	$(PYTHON) -m ruff format --check .
+
+test:
+	$(PYTHON) -m unittest discover -s tests -v
+
+check: lint test
 
 results:
 	@mkdir -p results
